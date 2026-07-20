@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
 class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when (modelClass) {
-        ComposeViewModel::class.java -> ComposeViewModel(container.repository) as T
+        ComposeViewModel::class.java -> ComposeViewModel(container.repository, container.settings) as T
         SentNotesViewModel::class.java -> SentNotesViewModel(container.repository) as T
         SettingsViewModel::class.java -> SettingsViewModel(container.settings) as T
         else -> throw IllegalArgumentException("Unknown ViewModel: $modelClass")

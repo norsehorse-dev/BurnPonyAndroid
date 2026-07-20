@@ -1,5 +1,6 @@
 //
 // SentNotesViewModel.kt
+// Diego rounds: Clear Inactive, Change Expiry (PATCH, counted from now).
 //
 
 package com.burnpony.app.ui.sent
@@ -33,6 +34,12 @@ class SentNotesViewModel(
 
     private val _burnTarget = MutableStateFlow<SentNoteEntity?>(null)
     val burnTarget: StateFlow<SentNoteEntity?> = _burnTarget
+
+    private val _expiryTarget = MutableStateFlow<SentNoteEntity?>(null)
+    val expiryTarget: StateFlow<SentNoteEntity?> = _expiryTarget
+
+    private val _showClearInactive = MutableStateFlow(false)
+    val showClearInactive: StateFlow<Boolean> = _showClearInactive
 
     fun receiptTimes(note: SentNoteEntity): List<Long> = repository.receiptTimes(note)
 
@@ -69,6 +76,43 @@ class SentNotesViewModel(
                 _error.value = UiError(R.string.sent_burn_error)
             }
         }
+    }
+
+    // Change Expiry (B11): active notes only; counted from now.
+    fun requestExpiryChange(note: SentNoteEntity) {
+        if (!note.burned && !note.goneFromServer) {
+            _expiryTarget.value = note
+        }
+    }
+
+    fun cancelExpiryChange() {
+        _expiryTarget.value = null
+    }
+
+    fun changeExpiry(expiresInSeconds: Int) {
+        val note = _expiryTarget.value ?: return
+        _expiryTarget.value = null
+        viewModelScope.launch {
+            try {
+                repository.changeExpiry(note, expiresInSeconds)
+            } catch (e: Exception) {
+                _error.value = UiError(R.string.error_change_expiry)
+            }
+        }
+    }
+
+    // Clear Inactive (B9): confirmation, then every burned/gone record goes.
+    fun requestClearInactive() {
+        _showClearInactive.value = true
+    }
+
+    fun cancelClearInactive() {
+        _showClearInactive.value = false
+    }
+
+    fun confirmClearInactive() {
+        _showClearInactive.value = false
+        viewModelScope.launch { repository.clearInactive() }
     }
 
     fun remove(note: SentNoteEntity) {

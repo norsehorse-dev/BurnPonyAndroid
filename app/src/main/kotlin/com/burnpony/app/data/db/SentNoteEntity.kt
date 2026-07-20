@@ -6,6 +6,11 @@
 // sender's share action and the recipient's browser. Lose the device, lose
 // management of the note, which expires on its own regardless.
 //
+// Diego round: optional device-local label. The label is stored ONLY here
+// (nullable column, additive v2 migration) and is NEVER part of any API
+// request, the payload, or the envelope; the notification layer reads it
+// from this table by note id.
+//
 
 package com.burnpony.app.data.db
 
@@ -29,4 +34,6 @@ data class SentNoteEntity(
     /** JSON array of epoch-millisecond receipt timestamps, e.g. [1751911200000]. */
     val receiptTimesJson: String,
     val pushRegistered: Boolean,
+    /** Device-local only; never sent to the server. */
+    val label: String? = null,
 )

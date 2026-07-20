@@ -1,12 +1,11 @@
 //
 // BurnPonyFcmService.kt (standard flavor)
-// Receives FCM messages and token rotations. The server sends a
-// notification+data message (title "BurnPony", body "A note was opened.",
-// data {note_id}): in the background the system tray displays it and this
-// service is not invoked; in the foreground onMessageReceived posts the
-// notification (when permitted) and triggers a status refresh so Sent Notes
-// updates live. On token rotation, pending receipt notes are re-registered
-// through the normal refresh path.
+// Receives FCM messages and token rotations.
+//
+// Diego round B5 (notification label rewrite): Android needs no service
+// extension — the label is looked up in the local Room store by note_id and
+// the body becomes “{label}” was opened; any unexpected condition falls back
+// to the generic body. The server never knows any label.
 //
 
 package com.burnpony.app.push
@@ -46,14 +45,18 @@ class BurnPonyFcmService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        showNotification(message)
         val container = (applicationContext as? BurnPonyApp)?.container ?: return
         scope.launch {
+            val noteId = message.data["note_id"]
+            val label = noteId?.let {
+                runCatching { container.repository.labelFor(it) }.getOrNull()
+            }
+            showNotification(message, label)
             runCatching { container.repository.refreshAll() }
         }
     }
 
-    private fun showNotification(message: RemoteMessage) {
+    private fun showNotification(message: RemoteMessage, label: String?) {
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
@@ -62,7 +65,11 @@ class BurnPonyFcmService : FirebaseMessagingService() {
         }
         ensureChannel(this)
         val title = message.notification?.title ?: getString(R.string.app_name)
-        val body = message.notification?.body ?: getString(R.string.push_note_opened)
+        val body = if (label != null) {
+            getString(R.string.push_note_opened_labeled, label)
+        } else {
+            message.notification?.body ?: getString(R.string.push_note_opened)
+        }
         val tapIntent = PendingIntent.getActivity(
             this,
             0,

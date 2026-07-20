@@ -2,6 +2,12 @@
 // ComposeViewModel.kt
 // State + create flow for the Compose screen, mirroring ComposeView.swift.
 //
+// Diego rounds: views/expiry/auto-hide remember their last-used values
+// across notes; passphrase and read receipt DELIBERATELY reset for every
+// note (a sticky passphrase toggle is how someone sends an unprotected note
+// believing it is protected). Device-local label. Clear action with a
+// confirmation above 200 characters.
+//
 
 package com.burnpony.app.ui.compose
 
@@ -11,6 +17,7 @@ import androidx.lifecycle.viewModelScope
 import com.burnpony.app.R
 import com.burnpony.app.data.CreatedNote
 import com.burnpony.app.data.NoteRepository
+import com.burnpony.app.data.SettingsStore
 import com.burnpony.app.data.api.BurnPonyApiException
 import com.burnpony.core.BurnPonyCrypto
 import com.burnpony.core.BurnPonyCryptoException
@@ -32,7 +39,9 @@ data class ComposeUiState(
     val passwordConfirm: String = "",
     val receiptEnabled: Boolean = false,
     val autoHideSeconds: Int = 0,
+    val label: String = "",
     val showingOptions: Boolean = false,
+    val showingClearConfirm: Boolean = false,
     val creating: Boolean = false,
     val error: UiError? = null,
     val created: CreatedNote? = null,
@@ -57,10 +66,18 @@ data class ComposeUiState(
 
 class ComposeViewModel(
     private val repository: NoteRepository,
+    private val settings: SettingsStore,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ComposeUiState())
+    private val _state = MutableStateFlow(freshForm())
     val state: StateFlow<ComposeUiState> = _state
+
+    /** Last-used views/expiry/auto-hide restored; everything else clean. */
+    private fun freshForm() = ComposeUiState(
+        viewsAllowed = settings.lastViewsAllowed,
+        expirySeconds = settings.lastExpirySeconds,
+        autoHideSeconds = settings.lastAutoHideSeconds,
+    )
 
     fun setText(value: String) = _state.update { it.copy(text = value) }
     fun setViewsAllowed(value: Int) = _state.update { it.copy(viewsAllowed = value.coerceIn(1, 100)) }
@@ -70,8 +87,23 @@ class ComposeViewModel(
     fun setPasswordConfirm(value: String) = _state.update { it.copy(passwordConfirm = value) }
     fun setReceiptEnabled(value: Boolean) = _state.update { it.copy(receiptEnabled = value) }
     fun setAutoHideSeconds(value: Int) = _state.update { it.copy(autoHideSeconds = value) }
+    fun setLabel(value: String) = _state.update { it.copy(label = value) }
     fun setShowingOptions(value: Boolean) = _state.update { it.copy(showingOptions = value) }
     fun dismissError() = _state.update { it.copy(error = null) }
+
+    /** Clear action: instant under 200 characters, confirmation above. */
+    fun requestClear() {
+        val s = _state.value
+        if (s.text.isEmpty()) return
+        if (s.text.length > 200) {
+            _state.update { it.copy(showingClearConfirm = true) }
+        } else {
+            _state.update { it.copy(text = "") }
+        }
+    }
+
+    fun confirmClear() = _state.update { it.copy(text = "", showingClearConfirm = false) }
+    fun cancelClear() = _state.update { it.copy(showingClearConfirm = false) }
 
     fun create() {
         val s = _state.value
@@ -91,7 +123,12 @@ class ComposeViewModel(
                     viewsAllowed = s.viewsAllowed,
                     expiresInSeconds = s.expirySeconds,
                     receiptEnabled = s.receiptEnabled,
+                    label = s.label,
                 )
+                // Persist last-used (B3): views, expiry, auto-hide only.
+                settings.lastViewsAllowed = s.viewsAllowed
+                settings.lastExpirySeconds = s.expirySeconds
+                settings.lastAutoHideSeconds = s.autoHideSeconds
                 _state.update { it.copy(creating = false, created = created) }
             } catch (e: BurnPonyApiException) {
                 _state.update { it.copy(creating = false, error = e.toUiError()) }
@@ -107,9 +144,9 @@ class ComposeViewModel(
         }
     }
 
-    /** Result dismissed via its explicit Done: reset the form like iOS. */
+    /** Result dismissed via its explicit Done: fresh form with last-used restored. */
     fun resetForm() {
-        _state.value = ComposeUiState()
+        _state.value = freshForm()
     }
 }
 

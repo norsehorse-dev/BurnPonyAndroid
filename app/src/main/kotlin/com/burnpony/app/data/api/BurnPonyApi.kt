@@ -130,6 +130,32 @@ class BurnPonyApi(
     }
 
     /**
+     * PATCH /notes/{id}: change expiry, counted from now. Live on the server
+     * since July 17; extending and shortening both valid within 300..2592000.
+     * Returns the authoritative new expires_at.
+     */
+    suspend fun updateNoteExpiry(
+        baseUrl: String,
+        id: String,
+        managementToken: String,
+        expiresInSeconds: Int,
+    ): UpdateExpiryResponse {
+        val body = moshi.adapter(UpdateExpiryRequest::class.java)
+            .toJson(UpdateExpiryRequest(expiresIn = expiresInSeconds))
+        val request = Request.Builder()
+            .url(endpoint(baseUrl, "/notes/$id"))
+            .header(TOKEN_HEADER, managementToken)
+            .patch(body.toRequestBody(JSON))
+            .build()
+        val (data, status) = perform(request)
+        return when (status) {
+            200 -> parse(data, UpdateExpiryResponse::class.java)
+            404 -> throw BurnPonyApiException.NotFound()
+            else -> throw BurnPonyApiException.Server(status)
+        }
+    }
+
+    /**
      * POST /notes/{id}/push with the FCM body shape (standard flavor).
      * The legacy APNs shape on the same endpoint belongs to the iOS app.
      */

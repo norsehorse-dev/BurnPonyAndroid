@@ -1,9 +1,9 @@
 //
 // Dtos.kt
-// Wire DTOs for the BurnPony relay. Field names are the live server contract
-// (section 4 of the planning doc); do not change from the client side.
-// House rule: Moshi codegen via KSP only, every DTO
-// @JsonClass(generateAdapter = true), plain Boolean for JSON booleans.
+// Wire DTOs for the BurnPony relay. Field names are the live server contract;
+// do not change from the client side. House rule: Moshi codegen via KSP only,
+// every DTO @JsonClass(generateAdapter = true), plain Boolean for JSON
+// booleans.
 //
 
 package com.burnpony.app.data.api
@@ -48,4 +48,18 @@ data class NoteStatusResponse(
 data class FcmPushRegisterRequest(
     @Json(name = "platform") val platform: String = "fcm",
     @Json(name = "token") val token: String,
+)
+
+/**
+ * PATCH /notes/{id}: change expiry, counted from now (live since July 17).
+ * expires_in clamps to 300..2592000; extending and shortening both valid.
+ */
+@JsonClass(generateAdapter = true)
+data class UpdateExpiryRequest(
+    @Json(name = "expires_in") val expiresIn: Int,
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateExpiryResponse(
+    @Json(name = "expires_at") val expiresAt: String,
 )

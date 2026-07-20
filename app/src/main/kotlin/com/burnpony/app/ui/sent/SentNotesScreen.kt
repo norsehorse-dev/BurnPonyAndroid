@@ -1,11 +1,11 @@
 //
 // SentNotesScreen.kt
-// Mirrors SentNotesView.swift: newest first; per note the created date, state
-// (Active ember / Burned danger / Expired-or-removed dim), views used over
-// allowed, relative expiry, passphrase and auto-hide badges, receipt
-// timestamps or "No opens yet"; pull-to-refresh plus refresh on entry;
-// swipe to burn (confirmation) or swipe to remove the local record when
-// burned/gone. Offline keeps last known status silently.
+// Diego rounds folded in: device-local labels as the primary line (date
+// secondary; unlabeled notes show the date as before), Active in GREEN,
+// Clear Inactive toolbar action (visible only when an inactive note exists),
+// leading swipe = Change Expiry on active notes with the nine-preset
+// "New expiration" dialog ("Counted from now."), trailing swipe = burn with
+// confirmation or remove when burned/gone. Offline keeps last known status.
 //
 
 package com.burnpony.app.ui.sent
@@ -16,6 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,6 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burnpony.app.R
 import com.burnpony.app.data.db.SentNoteEntity
 import com.burnpony.app.theme.BurnPonyTheme
+import com.burnpony.app.ui.compose.EXPIRY_CHOICES
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,10 +75,14 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
     val notes by viewModel.notes.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val burnTarget by viewModel.burnTarget.collectAsStateWithLifecycle()
+    val expiryTarget by viewModel.expiryTarget.collectAsStateWithLifecycle()
+    val showClearInactive by viewModel.showClearInactive.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
 
     // Refresh on entry, like .task on iOS.
     LaunchedEffect(Unit) { viewModel.refresh() }
+
+    val hasInactive = notes.any { it.burned || it.goneFromServer }
 
     Scaffold(
         containerColor = BurnPonyTheme.background,
@@ -87,6 +93,16 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
                     containerColor = BurnPonyTheme.background,
                     titleContentColor = BurnPonyTheme.ink,
                 ),
+                actions = {
+                    if (hasInactive) {
+                        TextButton(onClick = viewModel::requestClearInactive) {
+                            Text(
+                                stringResource(R.string.sent_clear_inactive),
+                                color = BurnPonyTheme.dim,
+                            )
+                        }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -102,7 +118,7 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                    contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     items(notes, key = { it.id }) { note ->
@@ -112,6 +128,7 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
                                 receiptTimes = viewModel.receiptTimes(note),
                                 onBurn = { viewModel.requestBurn(note) },
                                 onRemove = { viewModel.remove(note) },
+                                onChangeExpiry = { viewModel.requestExpiryChange(note) },
                             )
                         }
                     }
@@ -135,6 +152,65 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
             },
             dismissButton = {
                 TextButton(onClick = viewModel::cancelBurn) {
+                    Text(stringResource(R.string.common_cancel), color = BurnPonyTheme.dim)
+                }
+            },
+        )
+    }
+
+    // Change Expiry dialog (B11): nine presets, counted from now.
+    expiryTarget?.let {
+        AlertDialog(
+            onDismissRequest = viewModel::cancelExpiryChange,
+            containerColor = BurnPonyTheme.panel,
+            titleContentColor = BurnPonyTheme.ink,
+            textContentColor = BurnPonyTheme.dim,
+            title = { Text(stringResource(R.string.expiry_dialog_title)) },
+            text = {
+                Column {
+                    Text(
+                        stringResource(R.string.expiry_dialog_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = BurnPonyTheme.dim,
+                    )
+                    for ((labelRes, seconds) in EXPIRY_CHOICES) {
+                        TextButton(
+                            onClick = { viewModel.changeExpiry(seconds) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                stringResource(labelRes),
+                                color = BurnPonyTheme.ink,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = { },
+            dismissButton = {
+                TextButton(onClick = viewModel::cancelExpiryChange) {
+                    Text(stringResource(R.string.common_cancel), color = BurnPonyTheme.dim)
+                }
+            },
+        )
+    }
+
+    if (showClearInactive) {
+        AlertDialog(
+            onDismissRequest = viewModel::cancelClearInactive,
+            containerColor = BurnPonyTheme.panel,
+            titleContentColor = BurnPonyTheme.ink,
+            textContentColor = BurnPonyTheme.dim,
+            title = { Text(stringResource(R.string.sent_clear_inactive_title)) },
+            text = { Text(stringResource(R.string.sent_clear_inactive_message)) },
+            confirmButton = {
+                TextButton(onClick = viewModel::confirmClearInactive) {
+                    Text(stringResource(R.string.sent_remove), color = BurnPonyTheme.danger)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::cancelClearInactive) {
                     Text(stringResource(R.string.common_cancel), color = BurnPonyTheme.dim)
                 }
             },
@@ -196,46 +272,66 @@ private fun SwipeableNoteRow(
     receiptTimes: List<Long>,
     onBurn: () -> Unit,
     onRemove: () -> Unit,
+    onChangeExpiry: () -> Unit,
 ) {
     val removable = note.burned || note.goneFromServer
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) {
-                if (removable) onRemove() else onBurn()
+            when (value) {
+                SwipeToDismissBoxValue.EndToStart ->
+                    if (removable) onRemove() else onBurn()
+                SwipeToDismissBoxValue.StartToEnd ->
+                    if (!removable) onChangeExpiry()
+                else -> {}
             }
-            // Never auto-dismiss: removal happens through the store, and burn
-            // needs its confirmation dialog first.
+            // Never auto-dismiss: removal happens through the store; burn and
+            // expiry-change need their dialogs first.
             false
         },
     )
     SwipeToDismissBox(
         state = dismissState,
-        enableDismissFromStartToEnd = false,
+        enableDismissFromStartToEnd = !removable,
         backgroundContent = {
+            val direction = dismissState.dismissDirection
+            val leading = direction == SwipeToDismissBoxValue.StartToEnd
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        if (removable) BurnPonyTheme.line else BurnPonyTheme.danger,
+                        when {
+                            leading -> BurnPonyTheme.line
+                            removable -> BurnPonyTheme.line
+                            else -> BurnPonyTheme.danger
+                        },
                         RoundedCornerShape(12.dp),
                     )
                     .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.CenterEnd,
+                contentAlignment = if (leading) Alignment.CenterStart else Alignment.CenterEnd,
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Icon(
-                        if (removable) Icons.Filled.Delete else Icons.Filled.LocalFireDepartment,
-                        null,
-                        tint = BurnPonyTheme.ink,
-                    )
-                    Text(
-                        stringResource(if (removable) R.string.sent_remove else R.string.sent_burn),
-                        color = BurnPonyTheme.ink,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    if (leading) {
+                        Icon(Icons.Filled.Schedule, null, tint = BurnPonyTheme.ink)
+                        Text(
+                            stringResource(R.string.sent_change_expiry),
+                            color = BurnPonyTheme.ink,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    } else {
+                        Icon(
+                            if (removable) Icons.Filled.Delete else Icons.Filled.LocalFireDepartment,
+                            null,
+                            tint = BurnPonyTheme.ink,
+                        )
+                        Text(
+                            stringResource(if (removable) R.string.sent_remove else R.string.sent_burn),
+                            color = BurnPonyTheme.ink,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
             }
         },
@@ -250,7 +346,7 @@ private fun SentNoteRow(note: SentNoteEntity, receiptTimes: List<Long>) {
     val stateLabel: Pair<Int, Color> = when {
         note.goneFromServer -> R.string.sent_state_gone to BurnPonyTheme.dim
         note.burned -> R.string.sent_state_burned to BurnPonyTheme.danger
-        else -> R.string.sent_state_active to BurnPonyTheme.ember
+        else -> R.string.sent_state_active to BurnPonyTheme.activeGreen
     }
     val created = remember(note.createdAtEpochMs) {
         DateFormat.getMediumDateFormat(context).format(Date(note.createdAtEpochMs)) +
@@ -265,12 +361,28 @@ private fun SentNoteRow(note: SentNoteEntity, receiptTimes: List<Long>) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                created,
-                style = MaterialTheme.typography.bodyMedium,
-                color = BurnPonyTheme.ink,
-            )
-            Spacer(Modifier.weight(1f))
+            // Label primary, date secondary; unlabeled shows the date as before.
+            Column(modifier = Modifier.weight(1f)) {
+                if (note.label != null) {
+                    Text(
+                        note.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = BurnPonyTheme.ink,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        created,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = BurnPonyTheme.dim,
+                    )
+                } else {
+                    Text(
+                        created,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = BurnPonyTheme.ink,
+                    )
+                }
+            }
             Text(
                 stringResource(stateLabel.first),
                 style = MaterialTheme.typography.labelSmall,

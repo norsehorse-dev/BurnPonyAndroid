@@ -1,13 +1,11 @@
 //
 // ComposeScreen.kt
-// The New Note screen, mirroring ComposeView.swift: editor with live counter
-// against 50,000, options sheet (views stepper 1-100, expiry picker, auto-hide
-// picker, passphrase toggle with confirm, read receipt toggle with the
-// anti-silent-tracking footer), Create button with progress state.
-//
-// Phase 4: enabling the read-receipt toggle is the first meaningful moment
-// for POST_NOTIFICATIONS (standard flavor, API 33+); it is never requested
-// at launch, and the foss flavor never requests it at all.
+// The New Note screen. Diego rounds folded in: prominent tappable chip row
+// under the editor (the options-discoverability fix — every element opens
+// the options sheet), short expiry presets listed first, device-local label
+// field, Clear action with confirmation over 200 characters, keyboard
+// explicitly hidden when the created-note screen presents, POST_NOTIFICATIONS
+// asked at the first meaningful moment (receipt toggle, standard flavor).
 //
 
 package com.burnpony.app.ui.compose
@@ -32,10 +30,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Remove
@@ -60,12 +60,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -78,7 +80,12 @@ import com.burnpony.app.theme.BurnPonyTheme
 import com.burnpony.app.ui.result.ResultScreen
 import com.burnpony.core.BurnPonyLimits
 
+// Short expiries FIRST (Diego round B1). Nine presets, shared with the
+// Change Expiry dialog on the Sent list.
 val EXPIRY_CHOICES = listOf(
+    R.string.expiry_5_minutes to 300,
+    R.string.expiry_15_minutes to 900,
+    R.string.expiry_30_minutes to 1_800,
     R.string.expiry_1_hour to 3_600,
     R.string.expiry_8_hours to 28_800,
     R.string.expiry_1_day to 86_400,
@@ -100,6 +107,7 @@ val AUTOHIDE_CHOICES = listOf(
 fun ComposeScreen(viewModel: ComposeViewModel) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val keyboard = LocalSoftwareKeyboardController.current
 
     // POST_NOTIFICATIONS at the first meaningful moment: turning receipts on.
     // Denial is fine — receipts still arrive via polling in Sent Notes.
@@ -120,8 +128,12 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
     }
 
     // Result is a full-screen takeover dismissable only via its explicit
-    // Done, so the link cannot be lost (iOS: interactiveDismissDisabled).
+    // Done, so the link cannot be lost. The keyboard is explicitly hidden
+    // when it presents (Diego round B8).
     val created = state.created
+    LaunchedEffect(created != null) {
+        if (created != null) keyboard?.hide()
+    }
     if (created != null) {
         ResultScreen(note = created, onDone = { viewModel.resetForm() })
         return
@@ -137,6 +149,17 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
                     titleContentColor = BurnPonyTheme.ink,
                 ),
                 actions = {
+                    // Clear (trash), disabled when empty; >200 chars confirms.
+                    IconButton(
+                        onClick = viewModel::requestClear,
+                        enabled = state.text.isNotEmpty(),
+                    ) {
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.compose_clear),
+                            tint = if (state.text.isNotEmpty()) BurnPonyTheme.dim else BurnPonyTheme.line,
+                        )
+                    }
                     TextButton(onClick = { viewModel.setShowingOptions(true) }) {
                         Text(stringResource(R.string.compose_options), color = BurnPonyTheme.ember)
                     }
@@ -149,7 +172,7 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
                 .padding(padding)
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 TextField(
@@ -173,7 +196,7 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
                 )
             }
 
-            OptionsSummary(state)
+            OptionsChipRow(state, onOpenOptions = { viewModel.setShowingOptions(true) })
 
             CreateButton(state, onClick = viewModel::create)
         }
@@ -187,6 +210,27 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
         ) {
             OptionsSheet(state, viewModel, onReceiptToggled)
         }
+    }
+
+    if (state.showingClearConfirm) {
+        AlertDialog(
+            onDismissRequest = viewModel::cancelClear,
+            containerColor = BurnPonyTheme.panel,
+            titleContentColor = BurnPonyTheme.ink,
+            textContentColor = BurnPonyTheme.dim,
+            title = { Text(stringResource(R.string.clear_confirm_title)) },
+            text = { Text(stringResource(R.string.clear_confirm_message)) },
+            confirmButton = {
+                TextButton(onClick = viewModel::confirmClear) {
+                    Text(stringResource(R.string.compose_clear), color = BurnPonyTheme.danger)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::cancelClear) {
+                    Text(stringResource(R.string.common_cancel), color = BurnPonyTheme.dim)
+                }
+            },
+        )
     }
 
     state.error?.let { error ->
@@ -206,36 +250,70 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
     }
 }
 
+//
+// The options-discoverability chip row (Diego round B2): a views chip, an
+// expiry chip, and small circular badges for auto-hide, passphrase, and
+// receipt when enabled. Every element opens the options sheet.
+//
 @Composable
-private fun OptionsSummary(state: ComposeUiState) {
+private fun OptionsChipRow(state: ComposeUiState, onOpenOptions: () -> Unit) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth(),
     ) {
-        SummaryItem(Icons.Filled.Visibility, "${state.viewsAllowed}")
+        OptionChip(
+            icon = Icons.Filled.Visibility,
+            label = stringResource(R.string.chip_views, state.viewsAllowed),
+            onClick = onOpenOptions,
+        )
         val expiryRes = EXPIRY_CHOICES.firstOrNull { it.second == state.expirySeconds }?.first
-        if (expiryRes != null) {
-            SummaryItem(Icons.Filled.Schedule, stringResource(expiryRes))
+        OptionChip(
+            icon = Icons.Filled.Schedule,
+            label = if (expiryRes != null) stringResource(expiryRes) else "${state.expirySeconds}s",
+            onClick = onOpenOptions,
+        )
+        if (state.autoHideSeconds > 0) {
+            OptionBadge(Icons.Filled.Timer, onOpenOptions)
         }
         if (state.usePassword) {
-            Icon(Icons.Filled.Key, null, tint = BurnPonyTheme.dim, modifier = Modifier.size(14.dp))
+            OptionBadge(Icons.Filled.Key, onOpenOptions)
         }
         if (state.receiptEnabled) {
-            Icon(Icons.Filled.Notifications, null, tint = BurnPonyTheme.dim, modifier = Modifier.size(14.dp))
+            OptionBadge(Icons.Filled.Notifications, onOpenOptions)
         }
-        if (state.autoHideSeconds > 0) {
-            Icon(Icons.Filled.Timer, null, tint = BurnPonyTheme.dim, modifier = Modifier.size(14.dp))
-        }
-        Spacer(Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun SummaryItem(icon: ImageVector, label: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Icon(icon, null, tint = BurnPonyTheme.dim, modifier = Modifier.size(14.dp))
-        Text(label, style = MaterialTheme.typography.bodySmall, color = BurnPonyTheme.dim)
+private fun OptionChip(icon: ImageVector, label: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .background(BurnPonyTheme.fieldBackground, RoundedCornerShape(999.dp))
+            .border(1.dp, BurnPonyTheme.line, RoundedCornerShape(999.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(icon, null, tint = BurnPonyTheme.ember, modifier = Modifier.size(16.dp))
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = BurnPonyTheme.ink)
+    }
+}
+
+@Composable
+private fun OptionBadge(icon: ImageVector, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .background(BurnPonyTheme.fieldBackground, CircleShape)
+            .border(1.dp, BurnPonyTheme.line, CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, null, tint = BurnPonyTheme.ember, modifier = Modifier.size(15.dp))
     }
 }
 
@@ -343,6 +421,17 @@ private fun OptionsSheet(
             selected = state.autoHideSeconds,
             onSelect = viewModel::setAutoHideSeconds,
         )
+
+        // Device-local label (Diego round B4): never sent to the server.
+        TextField(
+            value = state.label,
+            onValueChange = viewModel::setLabel,
+            label = { Text(stringResource(R.string.options_label)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            colors = editorColors(),
+        )
+        FooterText(stringResource(R.string.options_label_footer))
 
         SectionHeader(stringResource(R.string.options_second_factor))
 

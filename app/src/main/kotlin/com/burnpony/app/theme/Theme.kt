@@ -4,6 +4,9 @@
 // iOS (BurnPonyTheme.swift), the web viewer CSS variables, and here.
 // Dark theme only.
 //
+// Diego round: Active state is GREEN (0x4CC38A) so "alive" and "brand"
+// stop meaning the same thing; ember remains the accent.
+//
 
 package com.burnpony.app.theme
 
@@ -24,6 +27,7 @@ object BurnPonyTheme {
     val danger = Color(0xFFEB2F33)
     val buttonInk = Color(0xFF1A0E08)
     val fieldBackground = Color(0xFF0B0A10)
+    val activeGreen = Color(0xFF4CC38A)
 
     // Primary buttons: top-to-bottom ember-to-emberDeep gradient, text buttonInk.
     val emberGradient = Brush.verticalGradient(colors = listOf(ember, emberDeep))

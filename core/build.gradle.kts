@@ -2,6 +2,11 @@
 // third-party dependencies. Structured for eventual extraction/publication as
 // BurnPonyCore-Kotlin (like CarrierPonyCore-Kotlin): everything public lives
 // under com.burnpony.core with internal helpers kept internal.
+//
+// No jvmToolchain() here deliberately: the F-Droid build server runs with
+// Gradle toolchain auto-detection/provisioning disabled, so the toolchain
+// API cannot resolve a JDK there. Target 17 bytecode explicitly instead and
+// compile with whatever JDK runs Gradle (17+ required by Gradle 9/AGP 9).
 plugins {
     alias(libs.plugins.kotlin.jvm)
     `java-library`
@@ -13,7 +18,9 @@ java {
 }
 
 kotlin {
-    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 dependencies {

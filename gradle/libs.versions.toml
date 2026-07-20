@@ -1,0 +1,55 @@
+# BurnPony Android version catalog.
+# AGP 9.1.1 requires Gradle 9.3.1+ and JDK 17+; built-in Kotlin is enabled by
+# default (no org.jetbrains.kotlin.android plugin on the app module).
+# KSP versions independently since 2.3.0 and supports Kotlin 2.2+.
+# Compose BOM 2026.06.01 maps to the Compose 1.11.x stable line, which is the
+# last line supporting compileSdk 36 (1.12+ requires compileSdk 37).
+# Firebase BOM 34.15.0 (June 2026) supplies firebase-messaging for the
+# standard flavor ONLY; the foss flavor has no Google artifacts.
+
+[versions]
+agp = "9.1.1"
+kotlin = "2.3.21"
+ksp = "2.3.9"
+composeBom = "2026.06.01"
+coreKtx = "1.16.0"
+activityCompose = "1.10.1"
+navigationCompose = "2.9.0"
+lifecycle = "2.9.0"
+room = "2.8.4"
+okhttp = "4.12.0"
+moshi = "1.15.2"
+zxing = "3.5.3"
+coroutines = "1.10.2"
+junit = "4.13.2"
+firebaseBom = "34.15.0"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
+moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshi" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

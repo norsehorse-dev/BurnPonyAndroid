@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ember theme tokens: single source of truth shared with iOS and the
+         web viewer. The Compose theme mirrors these in Theme.kt; keep both in
+         sync with the iOS BurnPonyTheme.swift values. -->
+    <color name="ic_launcher_background">#FF050408</color>
+    <color name="bp_background">#FF050408</color>
+    <color name="bp_ink">#FFFFF0DD</color>
+</resources>

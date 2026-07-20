@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark-only, like iOS (preferredColorScheme(.dark)). Compose draws
+         everything; this platform theme just keeps the window, status bar and
+         nav bar in the ember background during startup. -->
+    <style name="Theme.BurnPony" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bp_background</item>
+        <item name="android:statusBarColor">@color/bp_background</item>
+        <item name="android:navigationBarColor">@color/bp_background</item>
+        <item name="android:colorAccent">#F67529</item>
+    </style>
+</resources>

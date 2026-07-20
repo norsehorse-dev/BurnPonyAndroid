@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English source strings. Copy is verbatim from the shipped iOS app so the
+     Phase 5 xcstrings conversion drops in against the same key meanings.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="app_name">BurnPony</string>
+
+    <!-- Tabs -->
+    <string name="tab_new_note">New Note</string>
+    <string name="tab_sent">Sent</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Compose screen -->
+    <string name="compose_title">New Note</string>
+    <string name="compose_options">Options</string>
+    <string name="compose_counter">%1$d / %2$d</string>
+    <string name="compose_create">Encrypt &amp; Create Link</string>
+    <string name="compose_creating">Encrypting…</string>
+    <string name="compose_error_title">Could not create note</string>
+    <string name="common_ok">OK</string>
+    <string name="common_done">Done</string>
+    <string name="common_cancel">Cancel</string>
+
+    <!-- Options sheet -->
+    <string name="options_title">Note Options</string>
+    <string name="options_self_destruction">Self-destruction</string>
+    <string name="options_views_allowed">Views allowed: %1$d</string>
+    <string name="options_expires_after">Expires after</string>
+    <string name="options_auto_hide">Auto-hide after reveal</string>
+    <string name="expiry_1_hour">1 hour</string>
+    <string name="expiry_8_hours">8 hours</string>
+    <string name="expiry_1_day">1 day</string>
+    <string name="expiry_3_days">3 days</string>
+    <string name="expiry_7_days">7 days</string>
+    <string name="expiry_30_days">30 days</string>
+    <string name="autohide_off">Off</string>
+    <string name="autohide_10_seconds">10 seconds</string>
+    <string name="autohide_30_seconds">30 seconds</string>
+    <string name="autohide_1_minute">1 minute</string>
+    <string name="autohide_2_minutes">2 minutes</string>
+    <string name="options_second_factor">Second factor</string>
+    <string name="options_require_passphrase">Require a passphrase</string>
+    <string name="options_passphrase">Passphrase</string>
+    <string name="options_confirm_passphrase">Confirm passphrase</string>
+    <string name="options_passphrase_empty">Passphrase is empty.</string>
+    <string name="options_passphrase_mismatch">Passphrases do not match.</string>
+    <string name="options_passphrase_footer">Share the passphrase through a different channel than the link. It never leaves this device except inside the encryption.</string>
+    <string name="options_read_receipt">Read receipt</string>
+    <string name="options_receipt_footer">You get a notification-style record when the note is opened. The recipient is told this before they reveal the note. BurnPony does not do silent read tracking.</string>
+
+    <!-- Result screen -->
+    <string name="result_title">Note Created</string>
+    <string name="result_passphrase_reminder">Send the passphrase separately, through a different channel than this link. Anyone with both can read the note.</string>
+    <string name="result_share">Share</string>
+    <string name="result_copy">Copy</string>
+    <string name="result_copied">Copied</string>
+    <string name="result_qr_caption">In-person handoff: let the recipient scan this. The full link, key included, transfers without any network.</string>
+    <string name="result_qr_unavailable">QR unavailable</string>
+    <string name="result_expires_line">Expires %1$s. You can burn it early from Sent Notes.</string>
+
+    <!-- Sent notes -->
+    <string name="sent_title">Sent Notes</string>
+    <string name="sent_empty_title">No sent notes</string>
+    <string name="sent_empty_description">Notes you create appear here with live status. Only the note ID and a management token are stored on this device, never the note text.</string>
+    <string name="sent_state_active">Active</string>
+    <string name="sent_state_burned">Burned</string>
+    <string name="sent_state_gone">Expired or removed</string>
+    <string name="sent_views">%1$d/%2$d</string>
+    <string name="sent_no_opens">No opens yet</string>
+    <string name="sent_opened_at">Opened %1$s</string>
+    <string name="sent_burn">Burn</string>
+    <string name="sent_remove">Remove</string>
+    <string name="sent_burn_confirm_title">Burn this note now?</string>
+    <string name="sent_burn_confirm_action">Burn Note</string>
+    <string name="sent_burn_confirm_message">The encrypted note is deleted from the server immediately. Anyone opening the link afterward sees only that the note is unavailable.</string>
+    <string name="sent_problem_title">Problem</string>
+    <string name="sent_burn_error">Could not burn the note. Try again.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_how_header">How BurnPony works</string>
+    <string name="settings_how_body">Notes are encrypted on this device with AES-256-GCM before anything is uploaded. The decryption key travels only in the part of the link after the #, which browsers never send to any server. An optional passphrase is stretched with PBKDF2 and mixed into the key. The server stores ciphertext it cannot read, plus a note ID, view count, and expiry. No accounts, no names, no analytics.</string>
+    <string name="settings_limits_body">Honest limits: whoever has the full link (and passphrase, if set) can read the note. A recipient can always copy or photograph a note while it is visible. Self-destruction limits future access; it does not control the moment of reading.</string>
+    <string name="settings_selfhost_header">Self-hosting (advanced)</string>
+    <string name="settings_selfhost_footer">The whole server is open source and runs on any shared PHP host. Point this at your own instance and BurnPony never talks to ours. Notes remember which server they were created on.</string>
+    <string name="settings_active_server">Active server</string>
+    <string name="settings_reset_server">Reset to burnpony.app</string>
+    <string name="settings_server_invalid">Enter a full URL like https://notes.example.com</string>
+    <string name="settings_pony_header">More pony apps</string>
+    <string name="pony_pgpony_subtitle">OpenPGP encryption</string>
+    <string name="pony_carrierpony_subtitle">Async PGP messenger</string>
+    <string name="pony_agepony_subtitle">age encryption</string>
+    <string name="pony_relaypony_subtitle">Encrypted file transfer</string>
+    <string name="pony_quorumpony_subtitle">Key backup with secret sharing</string>
+    <string name="settings_links_header">Links</string>
+    <string name="settings_link_website">Website &amp; how-it-works</string>
+    <string name="settings_link_contact">Contact</string>
+    <string name="settings_source_code">Source code</string>
+    <string name="settings_source_code_value">With the open-source release</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_family_footer">BurnPony is part of the pony family of privacy tools: encryption you can inspect instead of taking a developer\'s word for it.</string>
+
+    <!-- API errors -->
+    <string name="error_bad_server_url">The server address in Settings is not a valid URL.</string>
+    <string name="error_rate_limited">Too many notes created recently. Wait a bit and try again.</string>
+    <string name="error_note_too_large">This note is too large for the server to accept.</string>
+    <string name="error_not_found">The note no longer exists on the server.</string>
+    <string name="error_server">The server had a problem (HTTP %1$d). Try again.</string>
+    <string name="error_network">Could not reach the server. Check your connection.</string>
+    <string name="error_bad_response">The server sent an unexpected response.</string>
+    <string name="error_encryption">Encryption failed. Check the note length and try again.</string>
+    <string name="error_generic">Something went wrong. Try again.</string>
+
+    <!-- Push (standard flavor; Phase 5 translates these with the rest) -->
+    <string name="push_channel_name">Read receipts</string>
+    <string name="push_note_opened">A note was opened.</string>
+</resources>

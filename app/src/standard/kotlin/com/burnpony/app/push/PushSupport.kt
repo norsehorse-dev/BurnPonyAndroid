@@ -9,7 +9,8 @@
 // auditable.
 //
 // Source of the values: google-services.json for project burnpony-11351,
-// android client com.burnpony.app.
+// android client com.burnpony.android (the Play applicationId; code packages
+// remain com.burnpony.app).
 //
 
 package com.burnpony.app.push
@@ -35,7 +36,7 @@ object PushSupport {
                 context,
                 FirebaseOptions.Builder()
                     .setProjectId("burnpony-11351")
-                    .setApplicationId("1:3513183711:android:173d1842d6e3c477cee86a")
+                    .setApplicationId("1:3513183711:android:8d07a18bcd843188cee86a")
                     .setApiKey("AIzaSyDI8JYCQcAfTnw-TRakUlL_00Y6rAvqy-Q")
                     .setGcmSenderId("3513183711")
                     .build(),

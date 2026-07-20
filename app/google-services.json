@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:3513183711:android:8d07a18bcd843188cee86a",
+        "android_client_info": {
+          "package_name": "com.burnpony.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI8JYCQcAfTnw-TRakUlL_00Y6rAvqy-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:3513183711:android:173d1842d6e3c477cee86a",
         "android_client_info": {
           "package_name": "com.burnpony.app"

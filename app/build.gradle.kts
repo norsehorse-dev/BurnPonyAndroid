@@ -36,7 +36,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.burnpony.app"
+        applicationId = "com.burnpony.android"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

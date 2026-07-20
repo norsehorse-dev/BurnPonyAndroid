@@ -1,0 +1,4 @@
+First release. Encrypted self-destructing notes: client-side AES-256-GCM,
+view limits, expiry (changeable later), optional passphrase, auto-hide,
+disclosed read receipts, device-local labels, QR handoff, self-hosting
+support, and nine languages.

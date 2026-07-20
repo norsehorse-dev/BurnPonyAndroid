@@ -1,0 +1,1 @@
+Self-destructing encrypted notes. The recipient just opens a link.

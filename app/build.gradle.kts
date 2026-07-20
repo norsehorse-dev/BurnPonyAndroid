@@ -3,17 +3,33 @@
 // KSP only (house rule: never moshi-kotlin reflective, every DTO
 // @JsonClass(generateAdapter = true), no KotlinJsonAdapterFactory).
 //
-// Phase 4: firebase-messaging is a standardImplementation dependency ONLY,
-// and the com.google.gms google-services plugin is deliberately NOT applied —
-// Firebase is initialized manually in the standard flavor's PushSupport from
-// the google-services.json values. This keeps the foss dependency graph free
-// of Google artifacts (verify: ./gradlew :app:dependencies --configuration
-// fossReleaseRuntimeClasspath) and the build reproducible for F-Droid.
+// Firebase-messaging is a standardImplementation dependency ONLY, and the
+// com.google.gms google-services plugin is deliberately NOT applied —
+// Firebase is initialized manually in the standard flavor's PushSupport.
+// This keeps the foss dependency graph free of Google artifacts (verify:
+// ./gradlew :app:dependencies --configuration fossReleaseRuntimeClasspath)
+// and the build reproducible for F-Droid.
+//
+// Phase 6 (release): R8 + resource shrinking ON for release builds;
+// signing from keystore.properties (never committed — see .gitignore);
+// dependenciesInfo blobs off in both APK and bundle so F-Droid rebuilds
+// can verify byte-identically.
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
 }
+
+// Release signing lives OUTSIDE the repo: app/keystore.properties with
+// storeFile/storePassword/keyAlias/keyPassword. Absent file = unsigned
+// release (what the F-Droid build server produces before verification).
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("app/keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val hasReleaseSigning = keystoreProperties.getProperty("storeFile") != null
 
 android {
     namespace = "com.burnpony.app"
@@ -40,16 +56,35 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // R8/shrinking configuration is Phase 6 (release prep, reproducible
-            // builds for F-Droid). Off until then so every build is testable.
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
+    }
+
+    // Reproducible builds (F-Droid): no Play dependency-info blobs.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     buildFeatures {

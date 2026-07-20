@@ -9,3 +9,11 @@ captures/
 .cxx/
 verification/*.class
 verification/vectors_flat.txt
+# Append to the existing .gitignore before the repo goes public:
+keystore.properties
+*.keystore
+*.jks
+# Append to the existing .gitignore before the repo goes public:
+keystore.properties
+*.keystore
+*.jks

@@ -1,0 +1,35 @@
+Send a secret without making the other person install anything.
+
+Write a note, set the self-destruct rules, share one link. The note is
+encrypted on your device with AES-256-GCM before anything is uploaded, and
+it decrypts only in the recipient's browser. The decryption key travels in
+the part of the link after the #, which browsers never send to any server —
+so the server stores ciphertext it cannot read, plus a note ID, a view
+count, and an expiry. No accounts, no names, no analytics.
+
+WHAT YOU CONTROL
+• Views: burn after 1 reading, or allow up to 100
+• Expiry: 5 minutes to 30 days, changeable later, counted from now
+• Optional passphrase, stretched with PBKDF2 and mixed into the key —
+  send it through a different channel than the link
+• Auto-hide: the revealed note re-hides after a timer
+• Read receipts, disclosed to the recipient before they reveal the note —
+  BurnPony does not do silent read tracking
+• A private label for your own list; it never leaves your device
+• QR code for in-person handoff: the whole link, key included, transfers
+  with no network at all
+
+HONEST LIMITS
+Whoever has the full link (and passphrase, if set) can read the note. A
+recipient can always copy or photograph a note while it is visible.
+Self-destruction limits future access; it does not control the moment of
+reading.
+
+OPEN
+The app, the server, the viewer, and the wire-format specification are
+open source (Apache-2.0), with cross-implementation test vectors shared
+with the iOS app and the web viewer. Self-hosters can point the app at
+their own server from Settings. Protocol: https://burnpony.app/protocol
+
+BurnPony is part of the pony family of privacy tools: encryption you can
+inspect instead of taking a developer's word for it.

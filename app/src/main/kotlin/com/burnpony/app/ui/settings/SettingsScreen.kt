@@ -5,6 +5,8 @@
 // resettable; notes remember their server), "More pony apps" cross-promo,
 // Links, version footer with the pony-family line.
 //
+// Phase 6: the Source code row now links to the public repository.
+//
 
 package com.burnpony.app.ui.settings
 
@@ -47,6 +49,8 @@ import com.burnpony.app.R
 import com.burnpony.app.data.api.BurnPonyApi
 import com.burnpony.app.theme.BurnPonyTheme
 import com.burnpony.app.ui.compose.editorColors
+
+private const val SOURCE_REPO_URL = "https://github.com/norsehorse-dev/BurnPonyAndroid"
 
 // Cross-promo targets (Android: link to the pony sites).
 private data class PonyApp(val name: String, val subtitleRes: Int, val url: String)
@@ -191,11 +195,17 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                         .clickable { open("mailto:NorseHorse@norsehor.se") }
                         .padding(vertical = 6.dp),
                 )
-                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-                    Text(stringResource(R.string.settings_source_code), color = BurnPonyTheme.ink)
+                // Phase 6: the open-source release is real — link the repo.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { open(SOURCE_REPO_URL) }
+                        .padding(vertical = 6.dp),
+                ) {
+                    Text(stringResource(R.string.settings_source_code), color = BurnPonyTheme.ember)
                     Spacer(Modifier.weight(1f))
                     Text(
-                        stringResource(R.string.settings_source_code_value),
+                        "github.com/norsehorse-dev/BurnPonyAndroid",
                         style = MaterialTheme.typography.bodySmall,
                         color = BurnPonyTheme.dim,
                     )

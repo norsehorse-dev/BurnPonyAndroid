@@ -39,8 +39,8 @@ android {
         applicationId = "com.burnpony.android"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
     }
 
     // Distribution split, following the PGPony foss-flavor precedent:

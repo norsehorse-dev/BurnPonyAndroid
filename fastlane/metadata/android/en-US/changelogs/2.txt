@@ -1,0 +1,1 @@
+1.0.1 fixes the F-Droid build (JVM toolchain pin removed from the core module). No user-facing changes.

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run walkthrough (tester feedback round 2, item 1). Kept in its own
+     file so the reviewed 1.0 catalog in strings.xml is untouched and the
+     translators have a single clean unit of work.
+
+     Translated into all eight shipped locales as of 1.2.0 (see
+     values-{de,es,fr,it,ja,pt-rBR,ru,zh-rCN}/strings_onboarding.xml). The
+     translations reuse the note/burn/server/views/expiry terminology already
+     established in strings.xml rather than coining new terms; if you change a
+     term here, change it there too or the walkthrough will drift from the app
+     around it. 1.1.0 shipped these English-only.
+
+     House convention: apostrophes escaped as \'.
+     Mirrors the iOS OnboardingSlide.swift copy. -->
+<resources>
+
+    <!-- Chrome -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+
+    <!-- Slide 0 - Welcome -->
+    <string name="onboarding_welcome_title">Notes that burn after reading</string>
+    <string name="onboarding_welcome_body">BurnPony turns a private message into a one-time link. When the views run out or the clock runs down, the note is deleted from the relay and nobody can bring it back.</string>
+
+    <!-- Slide 1 - How it works -->
+    <string name="onboarding_crypto_title">Encrypted before it leaves</string>
+    <string name="onboarding_crypto_body">Your note is encrypted on this device with AES-256-GCM. The key travels only in the part of the link after the #, which browsers never send to any server. The relay stores ciphertext it cannot read.</string>
+
+    <!-- Slide 2 - The rules you set -->
+    <string name="onboarding_rules_title">You set the rules</string>
+    <string name="onboarding_rules_body">Choose how many views it allows and when it expires. Add auto-hide so the text disappears again seconds after it is revealed, or a passphrase you share through a different channel than the link.</string>
+
+    <!-- Slide 3 - Send one for real -->
+    <string name="onboarding_send_title">Send your first note</string>
+    <string name="onboarding_send_body">Not a demo. Tap below and BurnPony will encrypt a real note and give you a real link — one view, five minutes. Send it to yourself and watch it burn.</string>
+    <string name="onboarding_send_cta">Send a note now</string>
+    <string name="onboarding_send_cta_hint">Creates a real note: one view, expires in five minutes.</string>
+    <string name="onboarding_sent_confirm_title">Note sent</string>
+    <string name="onboarding_sent_confirm_subtitle">It is waiting for you in Sent Notes.</string>
+
+    <!-- Slide 4 - After it is sent -->
+    <string name="onboarding_after_title">Watch it, or burn it early</string>
+    <string name="onboarding_after_body">Sent Notes shows which notes are still alive, how many views are left and when each one expires. You can burn any note early, and read receipts tell you the moment one is opened.</string>
+    <string name="onboarding_after_footnote">Honest limits: whoever has the full link can read the note, and a reader can always photograph what is on screen. Self-destruction limits future access; it does not control the moment of reading.</string>
+
+    <!-- The live send sheet -->
+    <string name="onboarding_sheet_title">Your first note</string>
+    <string name="onboarding_sheet_intro">Write something you would not want sitting in a chat history. It gets encrypted on this device before anything is uploaded.</string>
+    <string name="onboarding_sheet_placeholder">Type your note…</string>
+    <string name="onboarding_chip_one_view">1 view</string>
+    <string name="onboarding_chip_five_minutes">5 minutes</string>
+    <string name="onboarding_sheet_fixed_options">Fixed for this first note so you can watch it burn. Every note you send after this one is yours to configure.</string>
+    <string name="onboarding_sheet_later">Not right now</string>
+    <string name="onboarding_send_label">First note</string>
+
+    <!-- Settings entry point -->
+    <string name="settings_help_header">Getting started</string>
+    <string name="settings_replay_walkthrough">Replay the walkthrough</string>
+    <string name="settings_replay_walkthrough_subtitle">Six slides, including sending a note.</string>
+
+</resources>

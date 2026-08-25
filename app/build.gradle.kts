@@ -39,8 +39,8 @@ android {
         applicationId = "com.burnpony.android"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 6
+        versionName = "1.4.0"
     }
 
     // Distribution split, following the PGPony foss-flavor precedent:
@@ -57,8 +57,8 @@ android {
     }
 
     signingConfigs {
-        if (hasReleaseSigning) {
-            create("release") {
+        create("release") {
+            if (hasReleaseSigning) {
                 storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
@@ -69,15 +69,26 @@ android {
 
     buildTypes {
         release {
+            // Clean clones (F-Droid and the repro gate) have no
+            // keystore.properties, so fall back to debug signing. This keeps
+            // the release APK signed (named app-foss-release.apk, not
+            // -unsigned) and gives it the same ZIP alignment as the published
+            // build, which byte-level reproducibility requires. F-Droid strips
+            // this signature and copies the real one across.
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
+            // Do not embed git VCS info: it differs between the dev tree and
+            // the F-Droid clone and would break reproducibility.
+            vcsInfo.include = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            if (hasReleaseSigning) {
-                signingConfig = signingConfigs.getByName("release")
-            }
         }
     }
 
@@ -108,6 +119,12 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.androidx.core.ktx)
+    // AppCompat is here ONLY for AppCompatDelegate.setApplicationLocales -
+    // the per-app language API. No AppCompat themes, widgets or resource
+    // overlay are used beyond the Theme.AppCompat parent that
+    // AppCompatActivity requires. It is the canonical owner of per-app
+    // locale state below API 33, which is most of our minSdk 24 range.
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

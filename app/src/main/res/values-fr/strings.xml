@@ -116,4 +116,8 @@
     <string name="common_cancel">Annuler</string>
     <string name="common_done">OK</string>
     <string name="common_ok">OK</string>
+    <string name="pony_scrubpony_subtitle">Suppression des métadonnées photo</string>
+    <string name="pony_vaultpony_subtitle">Coffres compatibles avec VeraCrypt</string>
+    <string name="pony_passpony_subtitle">Gestionnaire de mots de passe pour pass et age</string>
+    <string name="settings_link_pony_family">Toutes les applis Pony</string>
 </resources>

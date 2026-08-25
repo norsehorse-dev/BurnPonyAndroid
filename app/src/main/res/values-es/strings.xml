@@ -116,4 +116,8 @@
     <string name="common_cancel">Cancelar</string>
     <string name="common_done">Listo</string>
     <string name="common_ok">Aceptar</string>
+    <string name="pony_scrubpony_subtitle">Eliminador de metadatos de fotos</string>
+    <string name="pony_vaultpony_subtitle">Bóvedas compatibles con VeraCrypt</string>
+    <string name="pony_passpony_subtitle">Gestor de contraseñas para pass y age</string>
+    <string name="settings_link_pony_family">Todas las apps Pony</string>
 </resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Discourage copying" (the ns payload flag), de. The footer states the
+     limit plainly instead of leaving the sender to assume this is protection.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="options_no_select_header">Kopieren</string>
+    <string name="options_no_select">Kopieren erschweren</string>
+    <string name="options_no_select_footer">Schaltet die Textauswahl aus, wenn die Notiz im Browser geöffnet wird, blendet die Kopierschaltfläche aus und sagt dem Empfänger, dass du darum gebeten hast. Eine Bremsschwelle, kein Schutz: ein Screenshot oder ein Foto des Bildschirms funktioniert weiterhin, und der Empfänger kann nichts in einen Passwortmanager einfügen.</string>
+</resources>

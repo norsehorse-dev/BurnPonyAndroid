@@ -30,7 +30,7 @@ sealed class BurnPonyApiException : Exception() {
 }
 
 class BurnPonyApi(
-    private val client: OkHttpClient,
+    private val clientProvider: () -> OkHttpClient,
     private val moshi: Moshi,
 ) {
 
@@ -53,7 +53,7 @@ class BurnPonyApi(
     private suspend fun perform(request: Request): Pair<ByteArray, Int> =
         withContext(Dispatchers.IO) {
             try {
-                client.newCall(request).execute().use { response ->
+                clientProvider().newCall(request).execute().use { response ->
                     Pair(response.body?.bytes() ?: ByteArray(0), response.code)
                 }
             } catch (e: IOException) {

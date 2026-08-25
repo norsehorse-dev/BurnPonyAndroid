@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app language picker (1.2.0), ja. Language names themselves are NOT
+     resources: they live in SupportedLanguage.nativeName and are always shown
+     in their own language, so someone stuck in an app they cannot read can
+     still find their way out. House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="onboarding_language_title">言語</string>
+    <string name="onboarding_language_body">BurnPony が使う言語を選んでください。あとから設定で変更できます。</string>
+    <string name="settings_language_header">言語</string>
+    <string name="language_selected">選択中</string>
+</resources>

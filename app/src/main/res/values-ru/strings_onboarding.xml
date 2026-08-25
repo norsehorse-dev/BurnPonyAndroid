@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run walkthrough, ru. Translated against the existing values-ru
+     catalog: note/burn/relay/views/expiry terminology is reused from
+     strings.xml rather than re-coined. House convention: apostrophes
+     escaped as \'. -->
+<resources>
+    <string name="onboarding_skip">Пропустить</string>
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_get_started">Начать</string>
+    <string name="onboarding_welcome_title">Записки, которые сгорают после прочтения</string>
+    <string name="onboarding_welcome_body">BurnPony превращает личное сообщение в одноразовую ссылку. Когда просмотры заканчиваются или истекает срок действия, записка удаляется с сервера, и вернуть её уже никто не сможет.</string>
+    <string name="onboarding_crypto_title">Шифруется до отправки</string>
+    <string name="onboarding_crypto_body">Ваша записка шифруется на этом устройстве алгоритмом AES-256-GCM. Ключ передаётся только в части ссылки после #, которую браузеры никогда не отправляют серверам. Сервер хранит шифротекст, который не может прочитать.</string>
+    <string name="onboarding_rules_title">Правила задаёте вы</string>
+    <string name="onboarding_rules_body">Выберите, сколько просмотров разрешено и когда истекает срок действия. Добавьте скрытие после показа, чтобы текст исчезал через несколько секунд после появления, или кодовую фразу, которую передадите по другому каналу, не тому, что и ссылку.</string>
+    <string name="onboarding_send_title">Отправьте первую записку</string>
+    <string name="onboarding_send_body">Это не демонстрация. Нажмите ниже, и BurnPony зашифрует настоящую записку и даст настоящую ссылку — один просмотр, пять минут. Отправьте её себе и посмотрите, как она сгорит.</string>
+    <string name="onboarding_send_cta">Отправить записку сейчас</string>
+    <string name="onboarding_send_cta_hint">Создаёт настоящую записку: один просмотр, истекает через пять минут.</string>
+    <string name="onboarding_sent_confirm_title">Записка отправлена</string>
+    <string name="onboarding_sent_confirm_subtitle">Она ждёт вас в разделе «Отправленные».</string>
+    <string name="onboarding_after_title">Следите за ней или сожгите раньше</string>
+    <string name="onboarding_after_body">В разделе «Отправленные» видно, какие записки ещё живы, сколько просмотров осталось и когда истекает срок действия каждой. Любую записку можно сжечь раньше, а уведомления о прочтении сообщат вам в тот момент, когда её откроют.</string>
+    <string name="onboarding_after_footnote">Честные ограничения: любой, у кого есть полная ссылка, может прочитать записку, а читающий всегда может сфотографировать то, что на экране. Самоуничтожение ограничивает будущий доступ; момент чтения оно не контролирует.</string>
+    <string name="onboarding_sheet_title">Ваша первая записка</string>
+    <string name="onboarding_sheet_intro">Напишите то, что не хотелось бы оставлять в истории переписки. Она шифруется на этом устройстве до какой-либо отправки.</string>
+    <string name="onboarding_sheet_placeholder">Введите записку…</string>
+    <string name="onboarding_chip_one_view">1 просмотр</string>
+    <string name="onboarding_chip_five_minutes">5 минут</string>
+    <string name="onboarding_sheet_fixed_options">Для этой первой записки параметры зафиксированы, чтобы вы увидели, как она сгорит. Все следующие записки настраиваете вы сами.</string>
+    <string name="onboarding_sheet_later">Не сейчас</string>
+    <string name="onboarding_send_label">Первая записка</string>
+    <string name="settings_help_header">Начало работы</string>
+    <string name="settings_replay_walkthrough">Пройти знакомство заново</string>
+    <string name="settings_replay_walkthrough_subtitle">Шесть слайдов, включая отправку записки.</string>
+</resources>

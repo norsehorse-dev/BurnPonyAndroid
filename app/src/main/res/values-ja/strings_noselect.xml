@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Discourage copying" (the ns payload flag), ja. The footer states the
+     limit plainly instead of leaving the sender to assume this is protection.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="options_no_select_header">コピー</string>
+    <string name="options_no_select">コピーしにくくする</string>
+    <string name="options_no_select_footer">ブラウザでノートを開いたときにテキスト選択を無効にし、コピーボタンを隠し、送信者の希望であることを受信者に伝えます。保護ではなく抑止です。スクリーンショットや画面の写真は今までどおり可能で、パスワードマネージャーへの貼り付けもできなくなります。</string>
+</resources>

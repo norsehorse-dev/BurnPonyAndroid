@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app language picker (1.2.0), pt-BR. Language names themselves are NOT
+     resources: they live in SupportedLanguage.nativeName and are always shown
+     in their own language, so someone stuck in an app they cannot read can
+     still find their way out. House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="onboarding_language_title">Idioma</string>
+    <string name="onboarding_language_body">Escolha o idioma em que o BurnPony fala. Você pode mudar isso depois em Ajustes.</string>
+    <string name="settings_language_header">Idioma</string>
+    <string name="language_selected">Selecionado</string>
+</resources>

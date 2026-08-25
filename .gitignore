@@ -17,3 +17,5 @@ keystore.properties
 keystore.properties
 *.keystore
 *.jks
+
+_to_delete/

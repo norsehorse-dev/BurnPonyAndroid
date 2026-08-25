@@ -1,0 +1,9 @@
+An interactive walkthrough for new users.
+
+- Five-step tour on first launch, with a skip button on every screen
+- The tour ends by sending a real burn note - encrypted on your device,
+  real link, one view, five minutes - so you have used BurnPony before you
+  have finished setting it up
+- Replay the walkthrough any time from Settings
+
+If you have already sent a note, the tour is not shown on upgrade.

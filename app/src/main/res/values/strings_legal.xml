@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app Privacy Policy and Terms of Use (tester feedback round 2, item 4).
+     Verbatim from burnpony.app/privacy.php and /terms.php, minus the two
+     web-only paragraphs (site analytics, launch-notify form) which do not
+     apply to the app. Kept in its own file so the reviewed 1.0 catalog in
+     strings.xml stays untouched.
+
+     NOTE FOR TRANSLATORS: privacy_push_b is NOT here. It is flavor-specific
+     (standard = FCM, foss = no push at all) and lives in
+     app/src/standard/res/values/ and app/src/foss/res/values/.
+
+     The body strings carry translatable="false": they are English-only by
+     design, and without it lint's MissingTranslation (fatal severity) fails
+     bundleRelease against the eight values-* folders. The five chrome strings
+     stay translatable and ARE translated.
+
+     House convention: apostrophes escaped as \'. -->
+<resources>
+
+    <string name="legal_privacy_title">Privacy Policy</string>
+    <string name="legal_terms_title">Terms of Use</string>
+    <string name="legal_last_updated" translatable="false">Last updated: July 7, 2026</string>
+    <string name="legal_view_online">View this document on burnpony.app</string>
+    <string name="legal_back">Back</string>
+    <string name="settings_legal_header">Legal</string>
+
+    <!-- Privacy Policy -->
+    <string name="privacy_intro" translatable="false">The short version: BurnPony has no accounts, collects nothing about you, runs no analytics, and the relay cannot read your notes. Here is the long version.</string>
+
+    <string name="privacy_who_h" translatable="false">Who this covers</string>
+    <string name="privacy_who_b" translatable="false">This policy covers the BurnPony apps, the note-viewing pages at burnpony.app, and the website — all developed and operated by NorseHorse, an independent developer. Contact: NorseHorse@norsehor.se</string>
+
+    <string name="privacy_app_h" translatable="false">What the app collects</string>
+    <string name="privacy_app_b" translatable="false">Nothing about you. There is no account, no sign-up, and the app never asks for your name, email address, or contacts. The Sent tab keeps a local record of the notes you have created — the note ID, a management token, your chosen settings, the status the app has fetched back (views used, whether it burned, receipt times) and your optional device-local label — never the note text. That record exists only on this device.</string>
+
+    <string name="privacy_relay_h" translatable="false">What the relay stores</string>
+    <string name="privacy_relay_b" translatable="false">Notes are stored on a relay so recipients can fetch them. For each live note the relay holds:\n\n•  The sealed envelope — your note, encrypted on this device with AES-256-GCM. The decryption key travels only in the link\'s # fragment, which browsers do not send to servers, so the relay cannot read the note. Even the auto-hide setting travels encrypted inside it.\n\n•  Bookkeeping — a random note ID, created and expiry timestamps, the view allowance and count, whether a read receipt was requested, and a hash of the management token used for early burn.\n\n•  Receipt times — if and only if you enabled receipts for that note, the times it was opened.\n\n•  Push registrations — device push tokens (up to five per note) so your phone can receive the generic "A note was opened." notification. They are removed with the note.</string>
+
+    <string name="privacy_deletion_h" translatable="false">Deletion</string>
+    <string name="privacy_deletion_b" translatable="false">Ciphertext is deleted in the same database transaction as the last allowed view, at expiry (a sweep runs every five minutes), or when you burn the note early. Burned, expired, and never-existed notes return identical responses.</string>
+
+    <string name="privacy_ratelimit_h" translatable="false">Rate limiting and network data</string>
+    <string name="privacy_ratelimit_b" translatable="false">To keep the relay healthy, note creation and abuse reports are rate-limited using IP addresses hashed with a server-side secret; those hash records expire after roughly two hours. Like any internet server, the relay sees connecting IP addresses at the network level while handling a request; it does not build profiles from them, and the web server in front of it is configured with access logging disabled.</string>
+
+    <string name="privacy_abuse_h" translatable="false">Abuse reports</string>
+    <string name="privacy_abuse_b" translatable="false">The viewer includes a report function. A report stores the note ID, the reason text the reporter enters (up to 500 characters), and the reporting time, for operator review. Reports are purged after 30 days, and submitting one never reveals whether a note exists.</string>
+
+    <string name="privacy_push_h" translatable="false">Push notifications</string>
+
+    <string name="privacy_third_h" translatable="false">Third parties</string>
+    <string name="privacy_third_b" translatable="false">There is no analytics SDK, no advertising SDK, and no crash reporter that transmits your data. Nothing is sold or shared with anyone.</string>
+
+    <string name="privacy_retention_h" translatable="false">Data retention and deletion</string>
+    <string name="privacy_retention_b" translatable="false">Note ciphertext lives exactly as long as its view allowance and expiry allow, and not a sweep-cycle longer. Receipt records and push registrations are removed with their note. Rate-limit hashes expire in about two hours; abuse reports in 30 days. Deleting the app deletes your local Sent records; because there is no account, there is no server-side profile to delete.</string>
+
+    <string name="privacy_children_h" translatable="false">Children</string>
+    <string name="privacy_children_b" translatable="false">BurnPony is not directed at children under 13 and does not knowingly collect information from anyone, children included.</string>
+
+    <string name="privacy_changes_h" translatable="false">Changes</string>
+    <string name="privacy_changes_b" translatable="false">If this policy changes, the update appears here and on the website with a new date. There is no dark-pattern re-consent flow because there is no data collection to consent to.</string>
+
+    <string name="privacy_contact_h" translatable="false">Contact</string>
+    <string name="privacy_contact_b" translatable="false">Questions about privacy: NorseHorse@norsehor.se</string>
+
+    <!-- Terms of Use -->
+    <string name="terms_agreement_h" translatable="false">The agreement</string>
+    <string name="terms_agreement_b" translatable="false">By using the BurnPony app, relay, or website you accept these terms. BurnPony is operated by NorseHorse, an independent developer.</string>
+
+    <string name="terms_service_h" translatable="false">The service</string>
+    <string name="terms_service_b" translatable="false">BurnPony provides self-destructing notes: text encrypted on your device, stored temporarily as ciphertext on a relay, and delivered through a shareable link. Notes are removed once their view allowance or expiry is reached. The service is currently provided free of charge.</string>
+
+    <string name="terms_use_h" translatable="false">Acceptable use</string>
+    <string name="terms_use_b" translatable="false">Use BurnPony in accordance with the laws that apply to you. Do not use it for harassment, threats, fraud, or to distribute illegal content, and do not attempt to disrupt or overload the relay. The viewer includes an abuse reporting mechanism; reported notes may be removed, and note creation is rate-limited.</string>
+
+    <string name="terms_link_h" translatable="false">Your link, your responsibility</string>
+    <string name="terms_link_b" translatable="false">A note link — plus its passphrase, if you set one — is the sole means of reading a note. Anyone who receives the link can read the note until it burns or expires. Lost links cannot be restored, regenerated, or recovered by anyone, including the developer.</string>
+
+    <string name="terms_ephemeral_h" translatable="false">Ephemerality is the product</string>
+    <string name="terms_ephemeral_b" translatable="false">Notes are designed to be irrecoverable once they burn or expire. Do not use BurnPony as storage for anything you need to keep. Deleted ciphertext cannot be restored by anyone.</string>
+
+    <string name="terms_warranty_h" translatable="false">No warranty</string>
+    <string name="terms_warranty_b" translatable="false">BurnPony is provided "as is", without warranty of any kind, express or implied. To the maximum extent permitted by law, the developer is not liable for service interruptions, lost notes, or any damages arising from use of the service.</string>
+
+    <string name="terms_relay_h" translatable="false">The relay</string>
+    <string name="terms_relay_b" translatable="false">The relay holds encrypted notes temporarily and may be changed, moved, or taken offline to maintain the service. If you point the app at your own self-hosted relay in Settings, that relay is yours to operate and these terms do not govern it.</string>
+
+    <string name="terms_changes_h" translatable="false">Changes</string>
+    <string name="terms_changes_b" translatable="false">Updates to these terms appear here and on the website with a revised date. Continued use after a change means you accept it.</string>
+
+    <string name="terms_contact_h" translatable="false">Contact</string>
+    <string name="terms_contact_b" translatable="false">NorseHorse@norsehor.se</string>
+
+</resources>

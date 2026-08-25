@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run walkthrough, pt-BR. Translated against the existing values-pt-rBR
+     catalog: note/burn/relay/views/expiry terminology is reused from
+     strings.xml rather than re-coined. House convention: apostrophes
+     escaped as \'. -->
+<resources>
+    <string name="onboarding_skip">Pular</string>
+    <string name="onboarding_next">Avançar</string>
+    <string name="onboarding_get_started">Começar</string>
+    <string name="onboarding_welcome_title">Notas que queimam depois de lidas</string>
+    <string name="onboarding_welcome_body">O BurnPony transforma uma mensagem privada em um link de uso único. Quando as visualizações acabam ou o tempo se esgota, a nota é excluída do servidor e ninguém pode trazê-la de volta.</string>
+    <string name="onboarding_crypto_title">Criptografada antes de sair daqui</string>
+    <string name="onboarding_crypto_body">Sua nota é criptografada neste dispositivo com AES-256-GCM. A chave viaja apenas na parte do link depois do #, que os navegadores nunca enviam a servidor algum. O servidor armazena texto cifrado que não consegue ler.</string>
+    <string name="onboarding_rules_title">Você define as regras</string>
+    <string name="onboarding_rules_body">Escolha quantas visualizações ela permite e quando expira. Adicione o Ocultar após revelar, para que o texto desapareça de novo segundos depois de ser revelado, ou uma senha que você compartilha por um canal diferente do link.</string>
+    <string name="onboarding_send_title">Envie sua primeira nota</string>
+    <string name="onboarding_send_body">Não é uma demonstração. Toque abaixo e o BurnPony vai criptografar uma nota de verdade e dar a você um link de verdade — uma visualização, cinco minutos. Envie para você mesmo e veja a nota queimar.</string>
+    <string name="onboarding_send_cta">Enviar uma nota agora</string>
+    <string name="onboarding_send_cta_hint">Cria uma nota de verdade: uma visualização, expira em cinco minutos.</string>
+    <string name="onboarding_sent_confirm_title">Nota enviada</string>
+    <string name="onboarding_sent_confirm_subtitle">Ela está esperando por você em Enviadas.</string>
+    <string name="onboarding_after_title">Acompanhe, ou queime antes</string>
+    <string name="onboarding_after_body">A aba Enviadas mostra quais notas ainda estão ativas, quantas visualizações restam e quando cada uma expira. Você pode queimar qualquer nota antes, e as confirmações de leitura avisam você no momento em que uma é aberta.</string>
+    <string name="onboarding_after_footnote">Limites honestos: quem tiver o link completo pode ler a nota, e um leitor sempre pode fotografar o que está na tela. A autodestruição limita o acesso futuro; não controla o momento da leitura.</string>
+    <string name="onboarding_sheet_title">Sua primeira nota</string>
+    <string name="onboarding_sheet_intro">Escreva algo que você não gostaria de deixar parado em um histórico de conversa. Ela é criptografada neste dispositivo antes de qualquer envio.</string>
+    <string name="onboarding_sheet_placeholder">Digite sua nota…</string>
+    <string name="onboarding_chip_one_view">1 visualização</string>
+    <string name="onboarding_chip_five_minutes">5 minutos</string>
+    <string name="onboarding_sheet_fixed_options">Fixos nesta primeira nota, para você vê-la queimar. Toda nota que você enviar depois desta é você quem configura.</string>
+    <string name="onboarding_sheet_later">Agora não</string>
+    <string name="onboarding_send_label">Primeira nota</string>
+    <string name="settings_help_header">Primeiros passos</string>
+    <string name="settings_replay_walkthrough">Rever o tutorial</string>
+    <string name="settings_replay_walkthrough_subtitle">Seis telas, incluindo o envio de uma nota.</string>
+</resources>

@@ -1,0 +1,9 @@
+Pick your language, and read the legal documents without leaving the app.
+
+- New: a language picker - nine languages, on the first walkthrough screen
+  and in Settings
+- The walkthrough is now translated in all of them
+- Privacy Policy and Terms of Use are bundled and readable offline, linked
+  from Settings
+- The F-Droid build states its own facts: no push messaging, no Google
+  libraries

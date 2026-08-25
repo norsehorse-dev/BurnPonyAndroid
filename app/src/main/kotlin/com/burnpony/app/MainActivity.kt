@@ -7,10 +7,14 @@
 
 package com.burnpony.app
 
+import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -24,21 +28,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.burnpony.app.i18n.LanguageManager
+import com.burnpony.app.i18n.LanguageState
 import com.burnpony.app.theme.BurnPonyMaterialTheme
 import com.burnpony.app.theme.BurnPonyTheme
 import com.burnpony.app.ui.compose.ComposeScreen
 import com.burnpony.app.ui.compose.ComposeViewModel
+import com.burnpony.app.ui.legal.LegalDocument
+import com.burnpony.app.ui.legal.LegalScreen
+import com.burnpony.app.ui.onboarding.OnboardingScreen
+import com.burnpony.app.ui.onboarding.OnboardingViewModel
 import com.burnpony.app.ui.sent.SentNotesScreen
 import com.burnpony.app.ui.sent.SentNotesViewModel
 import com.burnpony.app.ui.settings.SettingsScreen
@@ -52,15 +66,61 @@ private val TABS = listOf(
     Tab("settings", R.string.tab_settings, Icons.Filled.Settings),
 )
 
-class MainActivity : ComponentActivity() {
+// AppCompatActivity, not ComponentActivity: below API 33 only AppCompat
+// activities auto-recreate when AppCompatDelegate.setApplicationLocales
+// changes the per-app language, and without that recreation the language
+// picker would appear to do nothing on most of our minSdk 24 range.
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // Re-sync the language mirror from THIS Activity's configuration.
+        // AppCompatDelegate.getApplicationLocales() is still empty at
+        // Application.onCreate on API < 33 (it is populated when the first
+        // AppCompatActivity attaches), so the bootstrap in BurnPonyApp can
+        // report the device language while AppCompat has already applied the
+        // user's saved one - checkmark on English, UI in Spanish. The
+        // Activity config reflects what was actually applied, on every API
+        // level, and also catches a change made from system Settings.
+        LanguageState.current.value = LanguageManager.detectInitialLanguage(this).tag
+        // Dark bars unconditionally: bare enableEdgeToEdge() picks icon
+        // colour from the SYSTEM light/dark setting, but BurnPony is dark-only
+        // on both platforms, so a phone in light mode got dark status-bar
+        // icons on a near-black background.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
         val container = (application as BurnPonyApp).container
         setContent {
             BurnPonyMaterialTheme {
-                MainScaffold(ViewModelFactory(container))
+                val factory = remember { ViewModelFactory(container) }
+                // The walkthrough is drawn OVER the live scaffold rather than
+                // routed to, so skipping it lands the user on a New Note
+                // screen that is already composed and already scrolled home.
+                val onboardingCompleted by container.settings.onboardingCompleted
+                    .collectAsStateWithLifecycle()
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // The scaffold is hidden from accessibility while the tour
+                    // is up. isTraversalGroup on the overlay would not do it:
+                    // that only orders traversal within a group, so TalkBack
+                    // would still walk through into the tab bar behind.
+                    Box(
+                        modifier = if (!onboardingCompleted) {
+                            Modifier.semantics { hideFromAccessibility() }
+                        } else {
+                            Modifier
+                        }
+                    ) {
+                        MainScaffold(factory)
+                    }
+                    if (!onboardingCompleted) {
+                        OnboardingScreen(
+                            viewModel = viewModel<OnboardingViewModel>(factory = factory),
+                            onComplete = { container.settings.setOnboardingCompleted(true) },
+                        )
+                    }
+                }
             }
         }
     }
@@ -71,7 +131,8 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when (modelClass) {
         ComposeViewModel::class.java -> ComposeViewModel(container.repository, container.settings) as T
         SentNotesViewModel::class.java -> SentNotesViewModel(container.repository) as T
-        SettingsViewModel::class.java -> SettingsViewModel(container.settings) as T
+        SettingsViewModel::class.java -> SettingsViewModel(container.settings, container.appContext) as T
+        OnboardingViewModel::class.java -> OnboardingViewModel(container.repository) as T
         else -> throw IllegalArgumentException("Unknown ViewModel: $modelClass")
     }
 }
@@ -126,7 +187,22 @@ private fun MainScaffold(factory: ViewModelFactory) {
                 SentNotesScreen(viewModel(factory = factory))
             }
             composable("settings") {
-                SettingsScreen(viewModel(factory = factory))
+                SettingsScreen(
+                    viewModel = viewModel(factory = factory),
+                    onOpenLegal = { document ->
+                        navController.navigate("legal/" + document.route)
+                    },
+                )
+            }
+            // Legal documents are pushed onto the Settings tab rather than
+            // opened as a dialog: they are long, they need their own scroll
+            // position, and system back should return to Settings, not close
+            // the app.
+            composable("legal/{doc}") { entry ->
+                LegalScreen(
+                    document = LegalDocument.fromRoute(entry.arguments?.getString("doc")),
+                    onBack = { navController.popBackStack() },
+                )
             }
         }
     }

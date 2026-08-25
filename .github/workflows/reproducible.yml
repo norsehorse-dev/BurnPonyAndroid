@@ -1,0 +1,77 @@
+name: reproducible-check
+
+# Rebuilds a release tag twice from clean clones on Linux, proves the build
+# is deterministic, and compares the result against the published release
+# asset. This is the environment F-Droid's buildserver resembles, so a green
+# run here is the precondition for uploading any foss APK to a release.
+# See REPRODUCIBLE_BUILDS_PLAYBOOK.md for the full release procedure.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to verify, e.g. v1.4.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: JDK ${{ matrix.jdk }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        jdk: [17, 21]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "${{ matrix.jdk }}"
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rebuild tag twice from clean clones and compare
+        env:
+          REPO_URL: "https://github.com/${{ github.repository }}.git"
+          WORK: "${{ runner.temp }}/repro"
+          KEEP: "1"
+        run: |
+          chmod +x tools/verify_repro.sh
+          tools/verify_repro.sh rebuild "${{ steps.tag.outputs.tag }}"
+
+      - name: Compare against published release asset
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          TAG: "${{ steps.tag.outputs.tag }}"
+        run: |
+          mkdir -p "$RUNNER_TEMP/asset"
+          if gh release download "$TAG" --repo "${{ github.repository }}" \
+               --pattern "BurnPony-*-foss.apk" --dir "$RUNNER_TEMP/asset"; then
+            tools/verify_repro.sh compare \
+              "$RUNNER_TEMP"/asset/BurnPony-*-foss.apk \
+              "$RUNNER_TEMP/repro/buildA.apk"
+          else
+            echo "No BurnPony-*-foss.apk asset on release $TAG yet. Skipping."
+            echo "- no release asset to compare for $TAG" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload canonical unsigned build
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-foss-release-${{ steps.tag.outputs.tag }}-jdk${{ matrix.jdk }}
+          path: ${{ runner.temp }}/repro/buildA.apk

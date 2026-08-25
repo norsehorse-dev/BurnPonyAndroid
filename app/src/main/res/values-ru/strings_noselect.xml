@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Discourage copying" (the ns payload flag), ru. The footer states the
+     limit plainly instead of leaving the sender to assume this is protection.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="options_no_select_header">Копирование</string>
+    <string name="options_no_select">Затруднить копирование</string>
+    <string name="options_no_select_footer">Отключает выделение текста, когда записку открывают в браузере, скрывает кнопку копирования и сообщает получателю, что вы об этом попросили. Это помеха, а не защита: скриншот или фото экрана всё равно работают, и вставить текст в менеджер паролей получатель тоже не сможет.</string>
+</resources>

@@ -1,0 +1,7 @@
+New note option: Discourage copying.
+
+- Turns off text selection when your note is opened in a browser, hides the
+  copy button there, and tells the recipient you asked for it
+- Off by default, per note, and it remembers your last choice
+- It is a speed bump, not protection. A screenshot or a photo of the screen
+  still works, and it will stop the recipient pasting into a password manager

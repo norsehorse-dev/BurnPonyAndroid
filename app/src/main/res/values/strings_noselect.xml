@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Discourage copying" (the ns payload flag), en. The footer states the
+     limit plainly instead of leaving the sender to assume this is protection.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="options_no_select_header">Copying</string>
+    <string name="options_no_select">Discourage copying</string>
+    <string name="options_no_select_footer">Turns off text selection when the note is opened in a browser and hides the copy button, and tells the recipient you asked for it. A speed bump, not protection: a screenshot or a photo of the screen still works, and it will stop them pasting into a password manager.</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F-Droid build: no Google dependency exists in this variant's graph, so
+     there is no push path at all. Saying otherwise in a privacy policy would
+     be a false statement in the one document where that is least acceptable. -->
+<resources>
+    <string name="privacy_push_b" translatable="false">This build contains no push messaging and no Google libraries of any kind. Read receipts are delivered by the app checking the relay when you open the Sent tab, so nothing wakes your phone and no third-party push service is involved anywhere in this version.</string>
+</resources>

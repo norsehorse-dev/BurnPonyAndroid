@@ -29,14 +29,24 @@ object BurnPonyLimits {
     const val MAX_NOTE_CHARACTERS = 50_000
 }
 
-/** Decrypted note payload: {"v":1,"t":"...","ah":n} */
+/**
+ * Decrypted note payload: {"v":1,"t":"...","ah":n} plus an optional "ns":true.
+ *
+ * ns is "Discourage copying". It rides INSIDE the encrypted payload, exactly
+ * like ah, so the relay never learns which notes carry it. It is absent
+ * entirely on every note created before the flag existed, and absent whenever
+ * it is off, so an off note is byte-identical to a pre-flag note and the
+ * original cross-implementation vectors stay valid unchanged.
+ */
 data class NotePayload(
     val v: Int,
     val t: String,
     val ah: Int,
+    val ns: Boolean = false,
 ) {
     val text: String get() = t
     val autoHideSeconds: Int get() = ah
+    val noSelect: Boolean get() = ns
 }
 
 /** The opaque envelope stored by the server: {"v":1,"pw":bool,"salt":b64,"nonce":b64,"ct":b64} */
@@ -231,8 +241,12 @@ object BurnPonyCrypto {
     // generator. kotlinx.serialization / Moshi default output would NOT
     // match, which is why this is hand-rolled.
 
-    fun payloadJson(text: String, autoHideSeconds: Int): String =
-        "{\"v\":1,\"t\":\"${jsonEscape(text)}\",\"ah\":$autoHideSeconds}"
+    fun payloadJson(text: String, autoHideSeconds: Int, noSelect: Boolean = false): String =
+        if (noSelect) {
+            "{\"v\":1,\"t\":\"${jsonEscape(text)}\",\"ah\":$autoHideSeconds,\"ns\":true}"
+        } else {
+            "{\"v\":1,\"t\":\"${jsonEscape(text)}\",\"ah\":$autoHideSeconds}"
+        }
 
     /** Deterministic envelope JSON, key order v,pw,salt,nonce,ct. */
     fun envelopeJson(envelope: NoteEnvelope): String =
@@ -268,7 +282,12 @@ object BurnPonyCrypto {
 
     /** Encrypts with fresh random material; returns the envelope and the fragment key. */
     @Throws(BurnPonyCryptoException::class)
-    fun encryptNote(text: String, autoHideSeconds: Int, password: String?): Pair<NoteEnvelope, ByteArray> {
+    fun encryptNote(
+        text: String,
+        autoHideSeconds: Int,
+        password: String?,
+        noSelect: Boolean = false,
+    ): Pair<NoteEnvelope, ByteArray> {
         val key = generateFragmentKey()
         val envelope = encryptNote(
             text = text,
@@ -277,6 +296,7 @@ object BurnPonyCrypto {
             salt = generateSalt(),
             nonce = generateNonce(),
             password = password,
+            noSelect = noSelect,
         )
         return Pair(envelope, key)
     }
@@ -290,6 +310,7 @@ object BurnPonyCrypto {
         salt: ByteArray,
         nonce: ByteArray,
         password: String?,
+        noSelect: Boolean = false,
     ): NoteEnvelope {
         if (text.length > BurnPonyLimits.MAX_NOTE_CHARACTERS) {
             throw BurnPonyCryptoException.EncodingFailed()
@@ -297,7 +318,7 @@ object BurnPonyCrypto {
         if (salt.size != SALT_LENGTH || nonce.size != NONCE_LENGTH) {
             throw BurnPonyCryptoException.BadEnvelope()
         }
-        val payload = payloadJson(text, autoHideSeconds).toByteArray(Charsets.UTF_8)
+        val payload = payloadJson(text, autoHideSeconds, noSelect).toByteArray(Charsets.UTF_8)
         val key = deriveKey(fragmentKey, salt, password)
         val ct: ByteArray = try {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -361,7 +382,10 @@ object BurnPonyCrypto {
         val v = (obj["v"] as? Number)?.toInt() ?: throw BurnPonyCryptoException.BadEnvelope()
         val t = obj["t"] as? String ?: throw BurnPonyCryptoException.BadEnvelope()
         val ah = (obj["ah"] as? Number)?.toInt() ?: throw BurnPonyCryptoException.BadEnvelope()
-        return NotePayload(v = v, t = t, ah = ah)
+        // Absent on pre-flag notes and on notes with it off: default false,
+        // never an error, and strictly a Boolean true rather than truthiness.
+        val ns = obj["ns"] as? Boolean ?: false
+        return NotePayload(v = v, t = t, ah = ah, ns = ns)
     }
 
     /** Order-agnostic envelope decode for tests and future use. */

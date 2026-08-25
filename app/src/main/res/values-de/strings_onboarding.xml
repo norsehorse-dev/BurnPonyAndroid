@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run walkthrough, de. Translated against the existing values-de
+     catalog: note/burn/relay/views/expiry terminology is reused from
+     strings.xml rather than re-coined. House convention: apostrophes
+     escaped as \'. -->
+<resources>
+    <string name="onboarding_skip">Überspringen</string>
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_get_started">Loslegen</string>
+    <string name="onboarding_welcome_title">Notizen, die nach dem Lesen verbrennen</string>
+    <string name="onboarding_welcome_body">BurnPony macht aus einer privaten Nachricht einen einmaligen Link. Wenn die Ansichten aufgebraucht sind oder die Zeit abläuft, wird die Notiz vom Server gelöscht, und niemand kann sie zurückholen.</string>
+    <string name="onboarding_crypto_title">Verschlüsselt, bevor sie das Gerät verlässt</string>
+    <string name="onboarding_crypto_body">Deine Notiz wird auf diesem Gerät mit AES-256-GCM verschlüsselt. Der Schlüssel reist nur im Teil des Links nach dem #, den Browser nie an einen Server senden. Der Server speichert Chiffretext, den er nicht lesen kann.</string>
+    <string name="onboarding_rules_title">Du bestimmst die Regeln</string>
+    <string name="onboarding_rules_body">Wähle, wie viele Ansichten sie erlaubt und wann sie abläuft. Ergänze das automatische Ausblenden, damit der Text Sekunden nach der Anzeige wieder verschwindet, oder eine Passphrase, die du über einen anderen Kanal als den Link teilst.</string>
+    <string name="onboarding_send_title">Sende deine erste Notiz</string>
+    <string name="onboarding_send_body">Keine Demo. Tippe unten, und BurnPony verschlüsselt eine echte Notiz und gibt dir einen echten Link — eine Ansicht, fünf Minuten. Schicke den Link an dich selbst und sieh zu, wie die Notiz verbrennt.</string>
+    <string name="onboarding_send_cta">Jetzt Notiz senden</string>
+    <string name="onboarding_send_cta_hint">Erstellt eine echte Notiz: eine Ansicht, läuft in fünf Minuten ab.</string>
+    <string name="onboarding_sent_confirm_title">Notiz gesendet</string>
+    <string name="onboarding_sent_confirm_subtitle">Sie wartet unter „Gesendet“ auf dich.</string>
+    <string name="onboarding_after_title">Zusehen oder vorzeitig verbrennen</string>
+    <string name="onboarding_after_body">Unter „Gesendet“ siehst du, welche Notizen noch aktiv sind, wie viele Ansichten übrig sind und wann jede abläuft. Du kannst jede Notiz vorzeitig verbrennen, und Lesebestätigungen sagen dir sofort, wenn eine geöffnet wird.</string>
+    <string name="onboarding_after_footnote">Ehrliche Grenzen: Wer den vollständigen Link hat, kann die Notiz lesen, und ein Leser kann immer fotografieren, was auf dem Bildschirm steht. Selbstzerstörung begrenzt künftigen Zugriff; den Moment des Lesens kontrolliert sie nicht.</string>
+    <string name="onboarding_sheet_title">Deine erste Notiz</string>
+    <string name="onboarding_sheet_intro">Schreib etwas, das du nicht im Chatverlauf stehen haben möchtest. Es wird auf diesem Gerät verschlüsselt, bevor irgendetwas hochgeladen wird.</string>
+    <string name="onboarding_sheet_placeholder">Notiz eingeben…</string>
+    <string name="onboarding_chip_one_view">1 Ansicht</string>
+    <string name="onboarding_chip_five_minutes">5 Minuten</string>
+    <string name="onboarding_sheet_fixed_options">Für diese erste Notiz fest eingestellt, damit du sie verbrennen sehen kannst. Jede weitere Notiz stellst du selbst ein.</string>
+    <string name="onboarding_sheet_later">Jetzt nicht</string>
+    <string name="onboarding_send_label">Erste Notiz</string>
+    <string name="settings_help_header">Erste Schritte</string>
+    <string name="settings_replay_walkthrough">Einführung erneut ansehen</string>
+    <string name="settings_replay_walkthrough_subtitle">Sechs Seiten, darunter das Senden einer Notiz.</string>
+</resources>

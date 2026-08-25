@@ -27,7 +27,7 @@ class BurnPonyVectorTest {
     @Test
     fun serializerIsByteExact() {
         for (v in VectorSuite.vectors) {
-            val serialized = BurnPonyCrypto.payloadJson(v.text, v.autoHideSeconds)
+            val serialized = BurnPonyCrypto.payloadJson(v.text, v.autoHideSeconds, v.noSelect)
             assertArrayEquals(
                 "${v.name}: serializer must reproduce plaintextPayload byte-for-byte",
                 v.plaintextPayload.toByteArray(Charsets.UTF_8),
@@ -73,6 +73,7 @@ class BurnPonyVectorTest {
                 salt = v.salt,
                 nonce = v.nonce,
                 password = v.password,
+                noSelect = v.noSelect,
             )
             assertEquals("${v.name}: v", 1, envelope.v)
             assertEquals("${v.name}: pw", v.password != null, envelope.pw)
@@ -97,6 +98,7 @@ class BurnPonyVectorTest {
             )
             assertEquals("${v.name}: text", v.text, payload.text)
             assertEquals("${v.name}: autoHide", v.autoHideSeconds, payload.autoHideSeconds)
+            assertEquals("${v.name}: noSelect", v.noSelect, payload.noSelect)
             assertEquals("${v.name}: v", 1, payload.v)
         }
     }
@@ -116,7 +118,18 @@ class BurnPonyVectorTest {
     @Test
     fun longNoteVectorIsSubstantial() {
         // Guard that the 8.8 KB long-note vector actually exercised size.
-        val v5 = VectorSuite.vectors.last()
-        assertTrue(v5.plaintextPayload.length > 8_000)
+        // Selected BY NAME rather than by position: vectors get appended over
+        // time (v6/v7 added the ns flag), and .last() quietly stopped meaning
+        // "the long one" the moment that happened.
+        val longNote = VectorSuite.vectors.first { it.name == "v5-long-note" }
+        assertTrue(longNote.plaintextPayload.length > 8_000)
+    }
+
+    @Test
+    fun vectorsCoverBothNoSelectStates() {
+        // The suite is only meaningful for the ns flag if it pins BOTH the
+        // flag-on serialization and the byte-identical flag-off one.
+        assertTrue("no ns=true vector", VectorSuite.vectors.any { it.noSelect })
+        assertTrue("no ns-absent vector", VectorSuite.vectors.any { !it.noSelect })
     }
 }

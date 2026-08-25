@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run walkthrough, ja. Translated against the existing values-ja
+     catalog: note/burn/relay/views/expiry terminology is reused from
+     strings.xml rather than re-coined. House convention: apostrophes
+     escaped as \'. -->
+<resources>
+    <string name="onboarding_skip">スキップ</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_get_started">はじめる</string>
+    <string name="onboarding_welcome_title">読んだら焼却されるノート</string>
+    <string name="onboarding_welcome_body">BurnPony はプライベートなメッセージを一度きりのリンクに変えます。閲覧回数を使い切るか有効期限が切れると、ノートはサーバーから削除され、誰も元に戻せません。</string>
+    <string name="onboarding_crypto_title">端末を離れる前に暗号化</string>
+    <string name="onboarding_crypto_body">ノートはこの端末で AES-256-GCM により暗号化されます。鍵はリンクの # 以降の部分にのみ含まれ、ブラウザがサーバーに送信することはありません。サーバーには読めない暗号文が保存されます。</string>
+    <string name="onboarding_rules_title">ルールを決めるのはあなた</string>
+    <string name="onboarding_rules_body">許可する閲覧回数と有効期限を選べます。表示の数秒後にテキストが再び隠れる「表示後に自動で隠す」や、リンクとは別の経路で伝えるパスフレーズも追加できます。</string>
+    <string name="onboarding_send_title">最初のノートを送る</string>
+    <string name="onboarding_send_body">デモではありません。下をタップすると、BurnPony は本物のノートを暗号化し、本物のリンクを作成します。閲覧1回、有効期限5分。自分宛てに送って、焼却されるところを確かめてください。</string>
+    <string name="onboarding_send_cta">今すぐノートを送る</string>
+    <string name="onboarding_send_cta_hint">本物のノートを作成します。閲覧1回、有効期限は5分です。</string>
+    <string name="onboarding_sent_confirm_title">ノートを送信しました</string>
+    <string name="onboarding_sent_confirm_subtitle">「送信済み」に入っています。</string>
+    <string name="onboarding_after_title">見届けるか、早めに焼却するか</string>
+    <string name="onboarding_after_body">送信済みノートでは、どのノートがまだ有効か、残りの閲覧回数、それぞれの有効期限がわかります。どのノートでも早めに焼却でき、開封通知はノートが開かれた瞬間を知らせます。</string>
+    <string name="onboarding_after_footnote">正直な限界：完全なリンクを持つ人は誰でもノートを読めます。受信者は表示中の画面をいつでも撮影できます。自動消滅は将来のアクセスを制限するもので、読まれる瞬間を制御するものではありません。</string>
+    <string name="onboarding_sheet_title">最初のノート</string>
+    <string name="onboarding_sheet_intro">チャット履歴に残したくない内容を書いてください。アップロード前にこの端末で暗号化されます。</string>
+    <string name="onboarding_sheet_placeholder">ノートを入力…</string>
+    <string name="onboarding_chip_one_view">閲覧1回</string>
+    <string name="onboarding_chip_five_minutes">5分</string>
+    <string name="onboarding_sheet_fixed_options">焼却されるところを確かめられるよう、この最初のノートでは固定されています。次に送るノートからは自由に設定できます。</string>
+    <string name="onboarding_sheet_later">今はしない</string>
+    <string name="onboarding_send_label">最初のノート</string>
+    <string name="settings_help_header">はじめに</string>
+    <string name="settings_replay_walkthrough">チュートリアルをもう一度見る</string>
+    <string name="settings_replay_walkthrough_subtitle">スライド6枚、ノートの送信も含みます。</string>
+</resources>

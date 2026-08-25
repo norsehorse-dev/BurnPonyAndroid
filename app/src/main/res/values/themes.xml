@@ -2,8 +2,16 @@
 <resources>
     <!-- Dark-only, like iOS (preferredColorScheme(.dark)). Compose draws
          everything; this platform theme just keeps the window, status bar and
-         nav bar in the ember background during startup. -->
-    <style name="Theme.BurnPony" parent="android:Theme.Material.NoActionBar">
+         nav bar in the ember background during startup.
+
+         1.2.0: parent moved from android:Theme.Material.NoActionBar to
+         Theme.AppCompat.NoActionBar. MainActivity now extends
+         AppCompatActivity so AppCompat can own per-app locale state, and
+         AppCompatActivity throws IllegalStateException at onCreate unless
+         its theme descends from a Theme.AppCompat parent. The non-DayNight
+         variant is deliberate: BurnPony is dark-only on both platforms, so
+         there is nothing for DayNight to switch between. -->
+    <style name="Theme.BurnPony" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@color/bp_background</item>
         <item name="android:statusBarColor">@color/bp_background</item>
         <item name="android:navigationBarColor">@color/bp_background</item>

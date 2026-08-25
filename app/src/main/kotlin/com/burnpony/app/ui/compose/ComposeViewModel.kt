@@ -39,6 +39,7 @@ data class ComposeUiState(
     val passwordConfirm: String = "",
     val receiptEnabled: Boolean = false,
     val autoHideSeconds: Int = 0,
+    val noSelect: Boolean = false,
     val label: String = "",
     val showingOptions: Boolean = false,
     val showingClearConfirm: Boolean = false,
@@ -77,6 +78,7 @@ class ComposeViewModel(
         viewsAllowed = settings.lastViewsAllowed,
         expirySeconds = settings.lastExpirySeconds,
         autoHideSeconds = settings.lastAutoHideSeconds,
+        noSelect = settings.lastNoSelect,
     )
 
     fun setText(value: String) = _state.update { it.copy(text = value) }
@@ -87,6 +89,7 @@ class ComposeViewModel(
     fun setPasswordConfirm(value: String) = _state.update { it.copy(passwordConfirm = value) }
     fun setReceiptEnabled(value: Boolean) = _state.update { it.copy(receiptEnabled = value) }
     fun setAutoHideSeconds(value: Int) = _state.update { it.copy(autoHideSeconds = value) }
+    fun setNoSelect(value: Boolean) = _state.update { it.copy(noSelect = value) }
     fun setLabel(value: String) = _state.update { it.copy(label = value) }
     fun setShowingOptions(value: Boolean) = _state.update { it.copy(showingOptions = value) }
     fun dismissError() = _state.update { it.copy(error = null) }
@@ -124,11 +127,13 @@ class ComposeViewModel(
                     expiresInSeconds = s.expirySeconds,
                     receiptEnabled = s.receiptEnabled,
                     label = s.label,
+                    noSelect = s.noSelect,
                 )
                 // Persist last-used (B3): views, expiry, auto-hide only.
                 settings.lastViewsAllowed = s.viewsAllowed
                 settings.lastExpirySeconds = s.expirySeconds
                 settings.lastAutoHideSeconds = s.autoHideSeconds
+                settings.lastNoSelect = s.noSelect
                 _state.update { it.copy(creating = false, created = created) }
             } catch (e: BurnPonyApiException) {
                 _state.update { it.copy(creating = false, error = e.toUiError()) }

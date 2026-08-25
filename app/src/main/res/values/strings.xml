@@ -115,4 +115,21 @@
     <string name="common_cancel">Cancel</string>
     <string name="common_done">Done</string>
     <string name="common_ok">OK</string>
+    <string name="pony_scrubpony_subtitle">Photo metadata scrubber</string>
+    <string name="pony_vaultpony_subtitle">VeraCrypt-compatible vaults</string>
+    <string name="pony_passpony_subtitle">Password manager for pass and age</string>
+    <string name="settings_link_pony_family">All pony apps</string>
+    <!-- Proxy (SOCKS5 / Tor) -->
+    <string name="settings_proxy_header">Proxy (Tor)</string>
+    <string name="settings_proxy_subtitle">Route all relay traffic through Tor or a SOCKS5 proxy. When on, a note is created and managed only while the proxy is reachable.</string>
+    <string name="settings_proxy_mode_off">Off</string>
+    <string name="settings_proxy_mode_orbot">Orbot (Tor)</string>
+    <string name="settings_proxy_mode_custom">Custom SOCKS5</string>
+    <string name="settings_proxy_orbot_missing">Orbot isn\'t installed. Install it from F-Droid or Google Play to route through Tor.</string>
+    <string name="settings_proxy_custom_host">SOCKS5 host</string>
+    <string name="settings_proxy_custom_port">Port</string>
+    <string name="settings_proxy_failclosed_note">When the proxy is unreachable, requests fail rather than falling back to a direct connection.</string>
+    <string name="settings_proxy_username">Username (optional)</string>
+    <string name="settings_proxy_password">Password (optional)</string>
+    <string name="settings_proxy_isolation_note">With Tor, a username and password put BurnPony on its own circuit, separate from other apps (stream isolation). For a custom proxy that requires a login, use its credentials.</string>
 </resources>

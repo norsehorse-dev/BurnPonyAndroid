@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Legal CHROME only, zh-Hans. The Privacy Policy and Terms bodies are
+     deliberately NOT translated: a machine-translated privacy policy is a
+     liability. They fall back to the English in values/strings_legal.xml,
+     and each document links out to burnpony.app for the canonical copy. -->
+<resources>
+    <string name="settings_legal_header">法律</string>
+    <string name="legal_privacy_title">隐私政策</string>
+    <string name="legal_terms_title">使用条款</string>
+    <string name="legal_view_online">在 burnpony.app 上查看本文档</string>
+    <string name="legal_back">返回</string>
+</resources>

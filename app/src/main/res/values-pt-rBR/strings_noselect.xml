@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Discourage copying" (the ns payload flag), pt-BR. The footer states the
+     limit plainly instead of leaving the sender to assume this is protection.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="options_no_select_header">Cópia</string>
+    <string name="options_no_select">Dificultar a cópia</string>
+    <string name="options_no_select_footer">Desativa a seleção de texto quando a nota é aberta em um navegador e oculta o botão de copiar, e avisa o destinatário de que você pediu isso. É um obstáculo, não uma proteção: uma captura ou uma foto da tela continua funcionando, e vai impedir que ele cole em um gerenciador de senhas.</string>
+</resources>

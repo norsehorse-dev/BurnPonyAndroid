@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app language picker (1.2.0), ru. Language names themselves are NOT
+     resources: they live in SupportedLanguage.nativeName and are always shown
+     in their own language, so someone stuck in an app they cannot read can
+     still find their way out. House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="onboarding_language_title">Язык</string>
+    <string name="onboarding_language_body">Выберите язык, на котором говорит BurnPony. Позже его можно изменить в настройках.</string>
+    <string name="settings_language_header">Язык</string>
+    <string name="language_selected">Выбран</string>
+</resources>

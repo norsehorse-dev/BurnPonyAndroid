@@ -18,6 +18,7 @@ data class Vector(
     val plaintextPayload: String,
     val text: String,
     val autoHideSeconds: Int,
+    val noSelect: Boolean,
     val envelopeJson: String,
 )
 
@@ -46,6 +47,8 @@ object VectorSuite {
                 plaintextPayload = v["plaintextPayload"] as String,
                 text = payload["t"] as String,
                 autoHideSeconds = (payload["ah"] as Number).toInt(),
+                // absent on the five pre-flag vectors
+                noSelect = payload["ns"] as? Boolean ?: false,
                 envelopeJson = BurnPonyCrypto.envelopeJson(
                     NoteEnvelope(
                         v = (envelope["v"] as Number).toInt(),

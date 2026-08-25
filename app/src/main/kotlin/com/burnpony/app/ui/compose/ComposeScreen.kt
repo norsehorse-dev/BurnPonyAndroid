@@ -36,6 +36,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DoNotTouch
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Remove
@@ -284,6 +285,9 @@ private fun OptionsChipRow(state: ComposeUiState, onOpenOptions: () -> Unit) {
         if (state.receiptEnabled) {
             OptionBadge(Icons.Filled.Notifications, onOpenOptions)
         }
+        if (state.noSelect) {
+            OptionBadge(Icons.Filled.DoNotTouch, onOpenOptions)
+        }
     }
 }
 
@@ -475,6 +479,17 @@ private fun OptionsSheet(
             onCheckedChange = onReceiptToggled,
         )
         FooterText(stringResource(R.string.options_receipt_footer))
+
+        // Discourage copying. The footer states the limit plainly rather than
+        // leaving the sender to assume this is protection: it is not, and the
+        // viewer tells the recipient the same thing.
+        SectionHeader(stringResource(R.string.options_no_select_header))
+        ToggleRow(
+            label = stringResource(R.string.options_no_select),
+            checked = state.noSelect,
+            onCheckedChange = viewModel::setNoSelect,
+        )
+        FooterText(stringResource(R.string.options_no_select_footer))
     }
 }
 

@@ -116,4 +116,8 @@
     <string name="common_cancel">キャンセル</string>
     <string name="common_done">完了</string>
     <string name="common_ok">OK</string>
+    <string name="pony_scrubpony_subtitle">写真のメタデータ除去</string>
+    <string name="pony_vaultpony_subtitle">VeraCrypt 互換ボールト</string>
+    <string name="pony_passpony_subtitle">pass と age 対応のパスワード管理</string>
+    <string name="settings_link_pony_family">すべての Pony アプリ</string>
 </resources>

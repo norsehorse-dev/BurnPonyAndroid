@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Play build: read receipts ride Firebase Cloud Messaging. -->
+<resources>
+    <string name="privacy_push_b" translatable="false">Read receipts use Firebase Cloud Messaging to wake the app. The notification is deliberately generic — "A note was opened." with only the note ID attached — so no note content or settings transit Google\'s servers. Google\'s push infrastructure is the only third party in the system, and it carries content-free wake-up signals.</string>
+</resources>

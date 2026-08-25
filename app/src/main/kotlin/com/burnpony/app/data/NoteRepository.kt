@@ -65,10 +65,11 @@ class NoteRepository(
         expiresInSeconds: Int,
         receiptEnabled: Boolean,
         label: String?,
+        noSelect: Boolean = false,
     ): CreatedNote {
         val serverBaseUrl = settings.serverBaseUrl.value
         val (envelope, fragmentKey) = withContext(Dispatchers.Default) {
-            BurnPonyCrypto.encryptNote(text, autoHideSeconds, password)
+            BurnPonyCrypto.encryptNote(text, autoHideSeconds, password, noSelect)
         }
         val envelopeJson = BurnPonyCrypto.envelopeJson(envelope)
         val response = api.createNote(

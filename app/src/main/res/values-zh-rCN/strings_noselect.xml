@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Discourage copying" (the ns payload flag), zh-Hans. The footer states the
+     limit plainly instead of leaving the sender to assume this is protection.
+     House convention: apostrophes escaped as \'. -->
+<resources>
+    <string name="options_no_select_header">复制</string>
+    <string name="options_no_select">增加复制难度</string>
+    <string name="options_no_select_footer">在浏览器中打开纸条时关闭文本选择并隐藏复制按钮，同时告知收件人这是发件人的要求。这只是一道减速带，而不是保护：截屏或给屏幕拍照依然可行，收件人也无法把内容粘贴到密码管理器里。</string>
+</resources>

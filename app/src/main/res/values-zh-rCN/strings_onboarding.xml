@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run walkthrough, zh-Hans. Translated against the existing values-zh-rCN
+     catalog: note/burn/relay/views/expiry terminology is reused from
+     strings.xml rather than re-coined. House convention: apostrophes
+     escaped as \'. -->
+<resources>
+    <string name="onboarding_skip">跳过</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_get_started">开始使用</string>
+    <string name="onboarding_welcome_title">阅后即焚的纸条</string>
+    <string name="onboarding_welcome_body">BurnPony 把一条私密消息变成一次性链接。查看次数用完或时间走完后，纸条会从服务器删除，任何人都无法找回。</string>
+    <string name="onboarding_crypto_title">离开设备前就已加密</string>
+    <string name="onboarding_crypto_body">你的纸条在此设备上用 AES-256-GCM 加密。密钥只存在于链接 # 之后的部分中，浏览器绝不会把它发给任何服务器。服务器存储的是它无法读取的密文。</string>
+    <string name="onboarding_rules_title">规则由你来定</string>
+    <string name="onboarding_rules_body">选择允许查看的次数和有效期。可以加上显示后自动隐藏，让文本在显示几秒后再次消失；也可以加上口令短语，并通过与链接不同的渠道分享。</string>
+    <string name="onboarding_send_title">发送你的第一张纸条</string>
+    <string name="onboarding_send_body">这不是演示。点击下方，BurnPony 会加密一张真实的纸条，并给你一个真实的链接：1 次查看，5 分钟。把它发给自己，看着它烧毁。</string>
+    <string name="onboarding_send_cta">立即发送一张纸条</string>
+    <string name="onboarding_send_cta_hint">会创建一张真实的纸条：1 次查看，5 分钟后过期。</string>
+    <string name="onboarding_sent_confirm_title">纸条已发送</string>
+    <string name="onboarding_sent_confirm_subtitle">它就在“已发送”中等你。</string>
+    <string name="onboarding_after_title">看着它，或提前烧毁</string>
+    <string name="onboarding_after_body">“已发送”会显示哪些纸条仍然有效、还剩多少次查看，以及各自的有效期。你可以提前烧毁任何一张纸条，已读回执会在纸条被打开的那一刻告诉你。</string>
+    <string name="onboarding_after_footnote">诚实的限制：拥有完整链接的任何人都能读取纸条，阅读的人总是可以拍下屏幕上的内容。自毁限制的是未来的访问，无法控制阅读的那一刻。</string>
+    <string name="onboarding_sheet_title">你的第一张纸条</string>
+    <string name="onboarding_sheet_intro">写点你不希望留在聊天记录里的内容。在上传任何东西之前，它会先在此设备上加密。</string>
+    <string name="onboarding_sheet_placeholder">输入你的纸条…</string>
+    <string name="onboarding_chip_one_view">1 次查看</string>
+    <string name="onboarding_chip_five_minutes">5 分钟</string>
+    <string name="onboarding_sheet_fixed_options">第一张纸条的选项是固定的，好让你亲眼看它烧毁。此后发送的每一张纸条都由你自己配置。</string>
+    <string name="onboarding_sheet_later">暂时不用</string>
+    <string name="onboarding_send_label">第一张纸条</string>
+    <string name="settings_help_header">新手入门</string>
+    <string name="settings_replay_walkthrough">重看新手引导</string>
+    <string name="settings_replay_walkthrough_subtitle">六个页面，包括发送一张纸条。</string>
+</resources>

@@ -7,31 +7,31 @@
 package com.burnpony.app
 
 import android.app.Application
+import android.content.Context
 import com.burnpony.app.data.NoteRepository
 import com.burnpony.app.data.SettingsStore
 import com.burnpony.app.data.api.BurnPonyApi
+import com.burnpony.app.data.api.HttpClientFactory
 import com.burnpony.app.data.db.BurnPonyDatabase
+import com.burnpony.app.i18n.LanguageState
 import com.burnpony.app.push.PushSupport
 import com.squareup.moshi.Moshi
-import okhttp3.OkHttpClient
-import java.util.concurrent.TimeUnit
 
 class AppContainer(app: Application) {
 
-    val settings = SettingsStore(app)
+    val appContext: Context = app.applicationContext
 
-    private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(20, TimeUnit.SECONDS)
-        .writeTimeout(20, TimeUnit.SECONDS)
-        .build()
+    val settings = SettingsStore(app)
 
     // Codegen adapters only; no reflective factory anywhere (house rule).
     private val moshi: Moshi = Moshi.Builder().build()
 
     private val database = BurnPonyDatabase.build(app)
 
-    val api = BurnPonyApi(okHttpClient, moshi)
+    // The relay client is supplied per request by HttpClientFactory so the
+    // SOCKS/Tor proxy chosen in Settings applies uniformly and takes effect
+    // immediately (the factory rebuilds only when the proxy config changes).
+    val api = BurnPonyApi({ HttpClientFactory.client(appContext) }, moshi)
 
     // Flavor seam: FCM registrar in standard (initializes Firebase manually,
     // no google-services plugin), permanent no-op in foss.
@@ -52,5 +52,12 @@ class BurnPonyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        // Seed the language mirror. NOTE: MainActivity.onCreate re-syncs from
+        // the Activity's configuration and is AUTHORITATIVE - on API < 33 the
+        // Application context is never locale-overridden, so this call alone
+        // reports the device language rather than the user's saved one. It
+        // stays because it guarantees a sane value for anything reading
+        // LanguageState before an Activity exists.
+        LanguageState.initFromAppCompat(this)
     }
 }

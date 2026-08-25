@@ -49,8 +49,15 @@ async function bpDeriveKey(fragmentKey, salt, password) {
     hkdfKey, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
 
-async function bpEncrypt(text, autoHideSeconds, fragmentKey, salt, nonce, password) {
-  const payload = JSON.stringify({ v: 1, t: text, ah: autoHideSeconds });
+// noSelect ("Discourage copying") rides INSIDE the encrypted payload, exactly
+// like autoHideSeconds, so the relay never learns which notes carry it. The
+// key is emitted only when the flag is on: an off note produces byte-identical
+// output to every note created before this field existed, so the pre-existing
+// cross-implementation vectors stay valid unchanged.
+async function bpEncrypt(text, autoHideSeconds, fragmentKey, salt, nonce, password, noSelect) {
+  const payloadObj = { v: 1, t: text, ah: autoHideSeconds };
+  if (noSelect === true) payloadObj.ns = true;
+  const payload = JSON.stringify(payloadObj);
   const key = await bpDeriveKey(fragmentKey, salt, password);
   const ct = new Uint8Array(await crypto.subtle.encrypt(
     { name: "AES-GCM", iv: nonce }, key, new TextEncoder().encode(payload)));
@@ -73,5 +80,7 @@ async function bpDecrypt(envelope, fragmentKey, password) {
     { name: "AES-GCM", iv: nonce }, key, ct));
   const payload = JSON.parse(new TextDecoder().decode(pt));
   if (payload.v !== 1) throw new Error("unsupported payload version");
+  // ns is absent on every note created before the flag existed. Callers must
+  // treat it as a strict boolean: `payload.ns === true`, never truthiness.
   return payload;
 }

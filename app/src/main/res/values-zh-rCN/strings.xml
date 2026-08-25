@@ -116,4 +116,8 @@
     <string name="common_cancel">取消</string>
     <string name="common_done">完成</string>
     <string name="common_ok">好</string>
+    <string name="pony_scrubpony_subtitle">照片元数据清除</string>
+    <string name="pony_vaultpony_subtitle">兼容 VeraCrypt 的保险库</string>
+    <string name="pony_passpony_subtitle">pass 和 age 密码管理器</string>
+    <string name="settings_link_pony_family">全部 Pony 应用</string>
 </resources>

@@ -6,17 +6,21 @@ package com.burnpony.app.ui.settings
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.burnpony.app.data.NoteRepository
 import com.burnpony.app.data.SettingsStore
 import com.burnpony.app.data.api.BurnPonyApi
 import com.burnpony.app.data.api.HttpClientFactory
 import com.burnpony.app.data.api.ProxyPrefs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class SettingsViewModel(
     private val settings: SettingsStore,
     private val appContext: Context,
+    private val repository: NoteRepository,
 ) : ViewModel() {
 
     val serverBaseUrl: StateFlow<String> = settings.serverBaseUrl
@@ -50,6 +54,79 @@ class SettingsViewModel(
         }
         _serverProblem.value = false
         settings.setServerBaseUrl(trimmed)
+    }
+
+    // ── Defaults for new notes ──────────────────────────────────────────
+    // Written only here; the compose form reads them when it starts a fresh
+    // note. The passphrase is never a default.
+
+    val defaultViewsAllowed: StateFlow<Int> = settings.defaultViewsAllowedFlow
+    val defaultExpirySeconds: StateFlow<Int> = settings.defaultExpirySecondsFlow
+    val defaultAutoHideSeconds: StateFlow<Int> = settings.defaultAutoHideSecondsFlow
+    val defaultNoSelect: StateFlow<Boolean> = settings.defaultNoSelectFlow
+    val defaultReceiptEnabled: StateFlow<Boolean> = settings.defaultReceiptEnabledFlow
+
+    fun setDefaultViewsAllowed(value: Int) { settings.defaultViewsAllowed = value.coerceIn(1, 100) }
+    fun setDefaultExpirySeconds(value: Int) { settings.defaultExpirySeconds = value }
+    fun setDefaultAutoHideSeconds(value: Int) { settings.defaultAutoHideSeconds = value }
+    fun setDefaultNoSelect(value: Boolean) { settings.defaultNoSelect = value }
+    fun setDefaultReceiptEnabled(value: Boolean) { settings.defaultReceiptEnabled = value }
+
+    // ── Saved copies ────────────────────────────────────────────────────
+    // Turning on first creates the Keystore key pair, which requires a
+    // secure screen lock; without one the switch stays off and the section
+    // says why. Turning off always takes effect; when copies exist, a
+    // dialog asks whether to delete them too.
+
+    val savedCopiesEnabled: StateFlow<Boolean> = settings.savedCopiesEnabledFlow
+    val savedCopiesMaxAgeDays: StateFlow<Int> = settings.savedCopiesMaxAgeDaysFlow
+
+    private val _savedCopiesNeedLock = MutableStateFlow(false)
+    val savedCopiesNeedLock: StateFlow<Boolean> = _savedCopiesNeedLock
+
+    private val _showSavedCopiesOff = MutableStateFlow(false)
+    val showSavedCopiesOff: StateFlow<Boolean> = _showSavedCopiesOff
+
+    private var enabling = false
+
+    fun setSavedCopiesEnabled(value: Boolean) {
+        if (value) {
+            if (enabling) return
+            enabling = true
+            viewModelScope.launch {
+                try {
+                    if (repository.prepareSavedCopyKey()) {
+                        _savedCopiesNeedLock.value = false
+                        settings.savedCopiesEnabled = true
+                    } else {
+                        _savedCopiesNeedLock.value = true
+                    }
+                } finally {
+                    enabling = false
+                }
+            }
+        } else {
+            settings.savedCopiesEnabled = false
+            _savedCopiesNeedLock.value = false
+            viewModelScope.launch {
+                if (repository.countSavedCopies() > 0) _showSavedCopiesOff.value = true
+            }
+        }
+    }
+
+    fun setSavedCopiesMaxAgeDays(value: Int) {
+        settings.savedCopiesMaxAgeDays = value
+        // Apply a shorter limit right away rather than on the next start.
+        viewModelScope.launch { runCatching { repository.purgeExpiredSavedCopies() } }
+    }
+
+    fun deleteAllSavedCopies() {
+        _showSavedCopiesOff.value = false
+        viewModelScope.launch { repository.deleteAllSavedCopies() }
+    }
+
+    fun keepSavedCopies() {
+        _showSavedCopiesOff.value = false
     }
 
     /** Settings -> Replay the walkthrough: re-arms the first-run tour. */

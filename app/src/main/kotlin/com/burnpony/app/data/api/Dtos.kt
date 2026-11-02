@@ -17,6 +17,9 @@ data class CreateNoteRequest(
     @Json(name = "views_allowed") val viewsAllowed: Int,
     @Json(name = "expires_in") val expiresIn: Int,
     @Json(name = "receipt_enabled") val receiptEnabled: Boolean,
+    // Optional scheduled availability: integer seconds from now. Moshi omits
+    // null fields by default, so the key is absent unless a time is set.
+    @Json(name = "available_in") val availableIn: Int? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -24,6 +27,7 @@ data class CreateNoteResponse(
     @Json(name = "id") val id: String,
     @Json(name = "management_token") val managementToken: String,
     @Json(name = "expires_at") val expiresAt: String,
+    @Json(name = "available_at") val availableAt: String? = null,
 )
 
 @JsonClass(generateAdapter = true)

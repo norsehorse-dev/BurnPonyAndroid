@@ -1,0 +1,138 @@
+{
+  "format": "BurnPony cross-implementation test vectors",
+  "version": 2,
+  "status": "FROZEN 2026-08-27 - ground truth. Changing any field requires a new envelope version and a new vector suite.",
+  "kdf": {
+    "pbkdf2": {
+      "hash": "SHA-256",
+      "iterations": 600000,
+      "length": 32
+    },
+    "hkdf": {
+      "hash": "SHA-256",
+      "length": 32,
+      "info": {
+        "key": "BurnPony-v2-key",
+        "slot": "BurnPony-v2-slot<index-byte>",
+        "share": "BurnPony-v2-share"
+      }
+    }
+  },
+  "cipher": "AES-256-GCM, 12-byte nonce, 16-byte tag appended to ciphertext",
+  "sss": {
+    "field": "GF(2^8), reduction poly 0x11b (AES), x-coords 1..n, Lagrange at 0"
+  },
+  "decoySlots": 3,
+  "slotTiers": [
+    1024,
+    4096,
+    16384,
+    65536,
+    262144
+  ],
+  "vectors": [
+    {
+      "name": "v2-threshold-2of3",
+      "masterSecret": "MDEyMzQ1Njc4OTo7PD0+PzAxMjM0NTY3ODk6Ozw9Pj8=",
+      "t": 2,
+      "n": 3,
+      "coeffBytes": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ],
+      "envelope": {
+        "v": 2,
+        "pw": false,
+        "salt": "UVFRUVFRUVFRUVFRUVFRUQ==",
+        "nonce": "YWFhYWFhYWFhYWFh",
+        "ct": "/uDg8qLdP/6bbLyxBmNiqikKvEw+KN95IK4Zyn8bJwQ+71E0bZ5C4Hw9uno9u+71lzMaefn0h2JEOpuocWd7EKCC"
+      },
+      "shares": [
+        {
+          "x": 1,
+          "password": "reader-one",
+          "salt": "cXFxcXFxcXFxcXFxcXFxcQ==",
+          "wrapNonce": "cnJycnJycnJycnJy",
+          "fragment": "AgIDAQFxcXFxcXFxcXFxcXFxcXFxcnJycnJycnJycnJyufhrKE62kFu9_j14tDyeilMMSDTbhtMtyMMjGj2auyztU3wUnFD9vOACggXiP6k_"
+        },
+        {
+          "x": 2,
+          "password": "reader-two",
+          "salt": "c3Nzc3Nzc3Nzc3Nzc3Nzcw==",
+          "wrapNonce": "dHR0dHR0dHR0dHR0",
+          "fragment": "AgIDAgFzc3Nzc3Nzc3Nzc3Nzc3NzdHR0dHR0dHR0dHR0AEO2lmuBPM5teKgPmcjfwsVaaigtIKaqdOMa0PODILWgh46HA5fjUwwLmylTX32t"
+        },
+        {
+          "x": 3,
+          "password": null,
+          "fragment": "AgIDAwDw8vT2-Pr8_uDi5Obo6uzuwMLExsjKzM7Q0tTW2Nrc3g"
+        }
+      ],
+      "plaintextPayload": "{\"v\":2,\"t\":\"Meet at the safehouse, 21:00.\",\"ah\":0}"
+    },
+    {
+      "name": "v2-decoy-3slot",
+      "fragmentKey": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+      "salt": "EREREREREREREREREREREQ==",
+      "slotNonces": [
+        "ISEhISEhISEhISEh",
+        "IiIiIiIiIiIiIiIi",
+        "IyMjIyMjIyMjIyMj"
+      ],
+      "slots": [
+        {
+          "index": 0,
+          "password": "open-me",
+          "plaintextPayload": "{\"v\":2,\"t\":\"Groceries: milk, eggs, bread.\",\"ah\":0}"
+        },
+        {
+          "index": 1,
+          "password": "the-real-one",
+          "plaintextPayload": "{\"v\":2,\"t\":\"Source is Andriy. Do not use email.\",\"ah\":3600}"
+        },
+        {
+          "index": 2,
+          "password": "deepest",
+          "plaintextPayload": "{\"v\":2,\"t\":\"Fallback dead-drop: locker 34, key taped under the bench.\",\"ah\":86400}"
+        }
+      ],
+      "envelope": {
+        "v": 2,
+        "pw": true,
+        "salt": "EREREREREREREREREREREQ==",
+        "ct": "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"
+      },
+      "slotLen": 1052
+    }
+  ]
+}

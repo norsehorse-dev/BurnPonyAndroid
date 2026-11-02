@@ -72,6 +72,7 @@ class BurnPonyApi(
         viewsAllowed: Int,
         expiresIn: Int,
         receiptEnabled: Boolean,
+        availableIn: Int? = null,
     ): CreateNoteResponse {
         val bodyAdapter = moshi.adapter(CreateNoteRequest::class.java)
         val body = bodyAdapter.toJson(
@@ -80,6 +81,7 @@ class BurnPonyApi(
                 viewsAllowed = viewsAllowed,
                 expiresIn = expiresIn,
                 receiptEnabled = receiptEnabled,
+                availableIn = availableIn,
             )
         )
         val request = Request.Builder()

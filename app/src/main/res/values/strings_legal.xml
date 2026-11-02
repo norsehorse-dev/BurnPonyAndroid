@@ -19,7 +19,7 @@
 
     <string name="legal_privacy_title">Privacy Policy</string>
     <string name="legal_terms_title">Terms of Use</string>
-    <string name="legal_last_updated" translatable="false">Last updated: July 7, 2026</string>
+    <string name="legal_last_updated" translatable="false">Last updated: November 2, 2026</string>
     <string name="legal_view_online">View this document on burnpony.app</string>
     <string name="legal_back">Back</string>
     <string name="settings_legal_header">Legal</string>
@@ -31,7 +31,10 @@
     <string name="privacy_who_b" translatable="false">This policy covers the BurnPony apps, the note-viewing pages at burnpony.app, and the website — all developed and operated by NorseHorse, an independent developer. Contact: NorseHorse@norsehor.se</string>
 
     <string name="privacy_app_h" translatable="false">What the app collects</string>
-    <string name="privacy_app_b" translatable="false">Nothing about you. There is no account, no sign-up, and the app never asks for your name, email address, or contacts. The Sent tab keeps a local record of the notes you have created — the note ID, a management token, your chosen settings, the status the app has fetched back (views used, whether it burned, receipt times) and your optional device-local label — never the note text. That record exists only on this device.</string>
+    <string name="privacy_app_b" translatable="false">Nothing about you. There is no account, no sign-up, and the app never asks for your name, email address, or contacts. The Sent tab keeps a local record of the notes you have created: the note ID, a management token, your chosen settings, the status the app has fetched back (views used, whether it burned, receipt times) and your optional device-local label. That record exists only on this device.</string>
+
+    <string name="privacy_saved_h" translatable="false">Saved copies</string>
+    <string name="privacy_saved_b" translatable="false">The note text is not kept unless you turn on Saved copies in Settings, and even then only for notes where you switch on Keep a copy. Each copy is encrypted to a key held in this phone\'s secure hardware (Android Keystore, StrongBox where available), which only uses the key after your fingerprint, face or screen lock. The key never leaves the device and is never backed up or synced, so a copy cannot be opened anywhere else, or by the app itself without that unlock. Double bottom notes are never saved. You can delete a copy at any time or have copies delete themselves after 7, 30 or 90 days, and removing a note from the Sent tab removes its copy. Saved copies are never sent to the relay.</string>
 
     <string name="privacy_relay_h" translatable="false">What the relay stores</string>
     <string name="privacy_relay_b" translatable="false">Notes are stored on a relay so recipients can fetch them. For each live note the relay holds:\n\n•  The sealed envelope — your note, encrypted on this device with AES-256-GCM. The decryption key travels only in the link\'s # fragment, which browsers do not send to servers, so the relay cannot read the note. Even the auto-hide setting travels encrypted inside it.\n\n•  Bookkeeping — a random note ID, created and expiry timestamps, the view allowance and count, whether a read receipt was requested, and a hash of the management token used for early burn.\n\n•  Receipt times — if and only if you enabled receipts for that note, the times it was opened.\n\n•  Push registrations — device push tokens (up to five per note) so your phone can receive the generic "A note was opened." notification. They are removed with the note.</string>

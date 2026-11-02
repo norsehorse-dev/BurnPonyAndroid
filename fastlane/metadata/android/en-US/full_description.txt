@@ -3,21 +3,45 @@ Send a secret without making the other person install anything.
 Write a note, set the self-destruct rules, share one link. The note is
 encrypted on your device with AES-256-GCM before anything is uploaded, and
 it decrypts only in the recipient's browser. The decryption key travels in
-the part of the link after the #, which browsers never send to any server —
+the part of the link after the #, which browsers never send to any server,
 so the server stores ciphertext it cannot read, plus a note ID, a view
 count, and an expiry. No accounts, no names, no analytics.
+
+THREE KINDS OF NOTE
+• Simple: one note, one link, optional passphrase
+• Double bottom: one link with separate compartments, each opened by its
+  own passphrase. Hand over one passphrase and only that compartment
+  shows; nobody can prove the others exist
+• Split key: the note opens only when enough key links are combined,
+  for example any 2 of 3
 
 WHAT YOU CONTROL
 • Views: burn after 1 reading, or allow up to 100
 • Expiry: 5 minutes to 30 days, changeable later, counted from now
-• Optional passphrase, stretched with PBKDF2 and mixed into the key —
-  send it through a different channel than the link
+• Scheduled opening: the note stays hidden, looking like it does not
+  exist, until the time you pick
+• Optional passphrase, stretched with PBKDF2 and mixed into the key. Send
+  it through a different channel than the link
+• Open immediately: skip the confirmation screen when a note should open
+  on the first visit
 • Auto-hide: the revealed note re-hides after a timer
-• Read receipts, disclosed to the recipient before they reveal the note —
+• Read receipts, disclosed to the recipient before they reveal the note.
   BurnPony does not do silent read tracking
+• Defaults for new notes, set once in Settings
 • A private label for your own list; it never leaves your device
 • QR code for in-person handoff: the whole link, key included, transfers
   with no network at all
+
+SAVED COPIES (OPTIONAL, OFF BY DEFAULT)
+Keep a copy of a note you send so you can reread it after it burns. You
+choose per note. Each copy is encrypted to a key held in your phone's
+secure hardware, which only releases it after your fingerprint, face or
+screen lock. Double bottom notes are never saved.
+
+TOR AND PROXIES
+Route BurnPony through Tor with Orbot, or through any SOCKS5 proxy, with
+stream isolation. If the proxy is unreachable, requests fail instead of
+falling back to a direct connection.
 
 HONEST LIMITS
 Whoever has the full link (and passphrase, if set) can read the note. A

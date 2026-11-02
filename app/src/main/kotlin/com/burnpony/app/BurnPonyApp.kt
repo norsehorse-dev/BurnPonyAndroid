@@ -8,6 +8,7 @@ package com.burnpony.app
 
 import android.app.Application
 import android.content.Context
+import com.burnpony.app.data.KeystoreSavedCopyVault
 import com.burnpony.app.data.NoteRepository
 import com.burnpony.app.data.SettingsStore
 import com.burnpony.app.data.api.BurnPonyApi
@@ -16,6 +17,10 @@ import com.burnpony.app.data.db.BurnPonyDatabase
 import com.burnpony.app.i18n.LanguageState
 import com.burnpony.app.push.PushSupport
 import com.squareup.moshi.Moshi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class AppContainer(app: Application) {
 
@@ -41,7 +46,11 @@ class AppContainer(app: Application) {
         settings = settings,
         pushRegistrar = PushSupport.createRegistrar(app, api),
         moshi = moshi,
+        savedCopyVault = KeystoreSavedCopyVault(),
     )
+
+    // Process-lifetime scope for small housekeeping jobs (saved-copy purge).
+    val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 }
 
 class BurnPonyApp : Application() {
@@ -52,6 +61,10 @@ class BurnPonyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        // Saved copies: apply "Delete saved copies after" on every app start.
+        container.appScope.launch {
+            runCatching { container.repository.purgeExpiredSavedCopies() }
+        }
         // Seed the language mirror. NOTE: MainActivity.onCreate re-syncs from
         // the Activity's configuration and is AUTHORITATIVE - on API < 33 the
         // Application context is never locale-overridden, so this call alone

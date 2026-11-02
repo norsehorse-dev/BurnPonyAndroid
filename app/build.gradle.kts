@@ -39,8 +39,8 @@ android {
         applicationId = "com.burnpony.android"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.4.0"
+        versionCode = 7
+        versionName = "2.0.0"
     }
 
     // Distribution split, following the PGPony foss-flavor precedent:
@@ -125,6 +125,10 @@ dependencies {
     // AppCompatActivity requires. It is the canonical owner of per-app
     // locale state below API 33, which is most of our minSdk 24 range.
     implementation(libs.androidx.appcompat)
+    // Saved copies of sent notes: the copy opens only after BiometricPrompt
+    // (fingerprint, face or screen lock). Pure AndroidX, no Google Play
+    // services, so it is fine in the foss flavor.
+    implementation(libs.androidx.biometric)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

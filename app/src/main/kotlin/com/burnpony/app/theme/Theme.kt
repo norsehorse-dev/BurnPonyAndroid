@@ -4,7 +4,7 @@
 // iOS (BurnPonyTheme.swift), the web viewer CSS variables, and here.
 // Dark theme only.
 //
-// Diego round: Active state is GREEN (0x4CC38A) so "alive" and "brand"
+// Tester round: Active state is GREEN (0x4CC38A) so "alive" and "brand"
 // stop meaning the same thing; ember remains the accent.
 //
 

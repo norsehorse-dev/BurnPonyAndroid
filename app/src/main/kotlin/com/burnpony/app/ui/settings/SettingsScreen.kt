@@ -8,10 +8,22 @@
 // Phase 6: the Source code row now links to the public repository, and the
 // SOCKS5/Tor proxy selector (off / Orbot / custom) lives under Self-hosting.
 //
+// 2.0: "Defaults for new notes" edits the options a fresh compose form starts
+// with, reusing the compose sheet's controls so the wording matches.
+//
+// 2.0: "Saved copies" opts in to keeping an encrypted copy of sent note text
+// on this device, with optional auto-delete.
+//
 
 package com.burnpony.app.ui.settings
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -56,7 +69,22 @@ import com.burnpony.app.data.api.ProxyPrefs
 import com.burnpony.app.ui.language.LanguagePickerRows
 import com.burnpony.app.ui.legal.LegalDocument
 import com.burnpony.app.theme.BurnPonyTheme
+import com.burnpony.app.push.PushSupport
+import com.burnpony.app.ui.compose.AUTOHIDE_CHOICES
+import com.burnpony.app.ui.compose.ChoiceRow
+import com.burnpony.app.ui.compose.EXPIRY_CHOICES
+import com.burnpony.app.ui.compose.ToggleRow
+import com.burnpony.app.ui.compose.ViewsStepper
 import com.burnpony.app.ui.compose.editorColors
+
+// "Delete saved copies after": label to days (0 = never). 7 and 30 days
+// reuse the expiry strings.
+private val SAVED_COPY_AGE_CHOICES = listOf(
+    R.string.saved_copies_never to 0,
+    R.string.expiry_7_days to 7,
+    R.string.expiry_30_days to 30,
+    R.string.saved_copies_90d to 90,
+)
 
 private const val SOURCE_REPO_URL = "https://github.com/norsehorse-dev/BurnPonyAndroid"
 
@@ -89,6 +117,34 @@ fun SettingsScreen(
     val proxyPort by viewModel.proxyPort.collectAsStateWithLifecycle()
     val proxyUsername by viewModel.proxyUsername.collectAsStateWithLifecycle()
     val proxyPassword by viewModel.proxyPassword.collectAsStateWithLifecycle()
+    val defaultViews by viewModel.defaultViewsAllowed.collectAsStateWithLifecycle()
+    val defaultExpiry by viewModel.defaultExpirySeconds.collectAsStateWithLifecycle()
+    val defaultAutoHide by viewModel.defaultAutoHideSeconds.collectAsStateWithLifecycle()
+    val defaultNoSelect by viewModel.defaultNoSelect.collectAsStateWithLifecycle()
+    val defaultReceipt by viewModel.defaultReceiptEnabled.collectAsStateWithLifecycle()
+    val savedCopiesEnabled by viewModel.savedCopiesEnabled.collectAsStateWithLifecycle()
+    val savedCopiesMaxAge by viewModel.savedCopiesMaxAgeDays.collectAsStateWithLifecycle()
+    val savedCopiesNeedLock by viewModel.savedCopiesNeedLock.collectAsStateWithLifecycle()
+    val showSavedCopiesOff by viewModel.showSavedCopiesOff.collectAsStateWithLifecycle()
+
+    // Same as the compose receipt toggle: turning the receipt default on is
+    // the meaningful moment to ask for POST_NOTIFICATIONS (standard flavor
+    // only). Denial is fine; receipts still arrive via polling in Sent Notes.
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+    val onDefaultReceiptToggled: (Boolean) -> Unit = { enabled ->
+        if (enabled &&
+            PushSupport.wantsNotificationPermission &&
+            Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        viewModel.setDefaultReceiptEnabled(enabled)
+    }
 
     fun open(url: String) {
         runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) }
@@ -132,6 +188,68 @@ fun SettingsScreen(
             // one recreates the Activity, so Settings redraws translated.
             SectionPanel(header = stringResource(R.string.settings_language_header)) {
                 LanguagePickerRows()
+            }
+
+            // Defaults for new notes (2.0). Not the passphrase, and not
+            // instant open: both are per note only.
+            SectionPanel(header = stringResource(R.string.settings_defaults_header)) {
+                ViewsStepper(views = defaultViews, onChange = viewModel::setDefaultViewsAllowed)
+                Text(stringResource(R.string.options_expires_after), color = BurnPonyTheme.ink)
+                ChoiceRow(
+                    choices = EXPIRY_CHOICES,
+                    selected = defaultExpiry,
+                    onSelect = viewModel::setDefaultExpirySeconds,
+                )
+                Text(stringResource(R.string.options_auto_hide), color = BurnPonyTheme.ink)
+                ChoiceRow(
+                    choices = AUTOHIDE_CHOICES,
+                    selected = defaultAutoHide,
+                    onSelect = viewModel::setDefaultAutoHideSeconds,
+                )
+                ToggleRow(
+                    label = stringResource(R.string.options_no_select),
+                    checked = defaultNoSelect,
+                    onCheckedChange = viewModel::setDefaultNoSelect,
+                )
+                ToggleRow(
+                    label = stringResource(R.string.options_read_receipt),
+                    checked = defaultReceipt,
+                    onCheckedChange = onDefaultReceiptToggled,
+                )
+                Text(
+                    stringResource(R.string.settings_defaults_footer),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = BurnPonyTheme.dim,
+                )
+            }
+
+            // Saved copies (2.0). Off by default; needs a screen lock.
+            SectionPanel(header = stringResource(R.string.settings_saved_copies_header)) {
+                ToggleRow(
+                    label = stringResource(R.string.settings_saved_copies_toggle),
+                    checked = savedCopiesEnabled,
+                    onCheckedChange = viewModel::setSavedCopiesEnabled,
+                )
+                if (savedCopiesNeedLock && !savedCopiesEnabled) {
+                    Text(
+                        stringResource(R.string.saved_copy_needs_lock),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = BurnPonyTheme.danger,
+                    )
+                }
+                if (savedCopiesEnabled) {
+                    Text(stringResource(R.string.settings_saved_copies_autodelete), color = BurnPonyTheme.ink)
+                    ChoiceRow(
+                        choices = SAVED_COPY_AGE_CHOICES,
+                        selected = savedCopiesMaxAge,
+                        onSelect = viewModel::setSavedCopiesMaxAgeDays,
+                    )
+                }
+                Text(
+                    stringResource(R.string.settings_saved_copies_footer),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = BurnPonyTheme.dim,
+                )
             }
 
             // Getting started (tester feedback round 2, item 1)
@@ -402,6 +520,35 @@ fun SettingsScreen(
             )
         }
     }
+
+    if (showSavedCopiesOff) {
+        SavedCopiesOffDialog(
+            onDelete = viewModel::deleteAllSavedCopies,
+            onKeep = viewModel::keepSavedCopies,
+        )
+    }
+}
+
+@Composable
+private fun SavedCopiesOffDialog(onDelete: () -> Unit, onKeep: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onKeep,
+        containerColor = BurnPonyTheme.panel,
+        titleContentColor = BurnPonyTheme.ink,
+        textContentColor = BurnPonyTheme.dim,
+        title = { Text(stringResource(R.string.saved_copies_off_title)) },
+        text = { Text(stringResource(R.string.saved_copies_off_body)) },
+        confirmButton = {
+            TextButton(onClick = onDelete) {
+                Text(stringResource(R.string.saved_copies_off_delete), color = BurnPonyTheme.danger)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onKeep) {
+                Text(stringResource(R.string.saved_copies_off_keep), color = BurnPonyTheme.dim)
+            }
+        },
+    )
 }
 
 @Composable

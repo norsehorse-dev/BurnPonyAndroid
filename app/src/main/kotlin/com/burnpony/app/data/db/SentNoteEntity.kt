@@ -2,11 +2,16 @@
 // SentNoteEntity.kt
 // Device-local record of a created note, mirroring the iOS SentNote model:
 // the note ID, the management token, and the settings needed to display
-// status. NOTE TEXT IS NEVER STORED; the plaintext exists only in the
+// status. NOTE TEXT IS NEVER STORED unless the sender turns on saved copies
+// (Settings, "Saved copies") and keeps a copy of that note; then only the
+// note text is kept, in savedCopy, encrypted to a device-only Android
+// Keystore key that is never backed up and only unlocks after biometrics or
+// the screen lock (SavedCopyCrypto). Links, keys, shares and passphrases are
+// never stored. Without saved copies the plaintext exists only in the
 // sender's share action and the recipient's browser. Lose the device, lose
 // management of the note, which expires on its own regardless.
 //
-// Diego round: optional device-local label. The label is stored ONLY here
+// Tester round: optional device-local label. The label is stored ONLY here
 // (nullable column, additive v2 migration) and is NEVER part of any API
 // request, the payload, or the envelope; the notification layer reads it
 // from this table by note id.
@@ -36,4 +41,14 @@ data class SentNoteEntity(
     val pushRegistered: Boolean,
     /** Device-local only; never sent to the server. */
     val label: String? = null,
+    /**
+     * Saved copy of the note text (v3, opt-in). Base64 of
+     * version || wrapped-key length || RSA-OAEP wrapped AES key || nonce(12)
+     * || AES-GCM ciphertext and tag, sealed by SavedCopyCrypto with the note
+     * id as AAD. Null when no copy is kept, or after it was deleted or purged
+     * by the auto-delete setting. Never set for double bottom notes.
+     */
+    val savedCopy: String? = null,
+    /** "simple", "decoy" or "split" (v3, matching iOS). Null for older rows. */
+    val noteKind: String? = null,
 )

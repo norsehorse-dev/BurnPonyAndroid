@@ -15,6 +15,7 @@ composeBom = "2026.06.01"
 coreKtx = "1.16.0"
 activityCompose = "1.10.1"
 appcompat = "1.7.0"
+biometric = "1.1.0"
 navigationCompose = "2.9.0"
 lifecycle = "2.9.0"
 room = "2.8.4"
@@ -27,6 +28,7 @@ firebaseBom = "34.15.0"
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }

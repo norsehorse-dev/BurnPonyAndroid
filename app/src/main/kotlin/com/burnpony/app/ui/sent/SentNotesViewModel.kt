@@ -1,6 +1,9 @@
 //
 // SentNotesViewModel.kt
-// Diego rounds: Clear Inactive, Change Expiry (PATCH, counted from now).
+// Tester rounds: Clear Inactive, Change Expiry (PATCH, counted from now).
+// Saved copies: unlock through BiometricPrompt (driven by the screen), open,
+// show, delete. The opened text lives only in this ViewModel's state while
+// the copy is on screen.
 //
 
 package com.burnpony.app.ui.sent
@@ -9,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.burnpony.app.R
 import com.burnpony.app.data.NoteRepository
+import com.burnpony.app.data.SavedCopyUnavailableException
 import com.burnpony.app.data.api.BurnPonyApiException
 import com.burnpony.app.data.db.SentNoteEntity
 import com.burnpony.app.ui.compose.UiError
@@ -18,6 +22,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.crypto.Cipher
+
+/** A saved copy currently shown on screen. */
+data class OpenedSavedCopy(val noteId: String, val text: String)
 
 class SentNotesViewModel(
     private val repository: NoteRepository,
@@ -41,6 +49,9 @@ class SentNotesViewModel(
     private val _showClearInactive = MutableStateFlow(false)
     val showClearInactive: StateFlow<Boolean> = _showClearInactive
 
+    private val _openedCopy = MutableStateFlow<OpenedSavedCopy?>(null)
+    val openedCopy: StateFlow<OpenedSavedCopy?> = _openedCopy
+
     fun receiptTimes(note: SentNoteEntity): List<Long> = repository.receiptTimes(note)
 
     /** Refresh on entry and on pull-to-refresh; offline keeps last known status silently. */
@@ -49,6 +60,8 @@ class SentNotesViewModel(
         _refreshing.value = true
         viewModelScope.launch {
             try {
+                // Auto-delete old saved copies whenever the list loads.
+                runCatching { repository.purgeExpiredSavedCopies() }
                 repository.refreshAll()
             } finally {
                 _refreshing.value = false
@@ -121,5 +134,60 @@ class SentNotesViewModel(
 
     fun dismissError() {
         _error.value = null
+    }
+
+    // ── Saved copies ────────────────────────────────────────────────────
+
+    /**
+     * API 30+: builds the decrypt cipher that BiometricPrompt unlocks as a
+     * CryptoObject, then hands it to [onReady] on the main thread.
+     */
+    fun prepareSavedCopyUnlock(onReady: (Cipher) -> Unit) {
+        viewModelScope.launch {
+            val cipher = try {
+                repository.savedCopyUnlockCipher()
+            } catch (e: Exception) {
+                reportSavedCopyUnavailable()
+                return@launch
+            }
+            onReady(cipher)
+        }
+    }
+
+    /**
+     * After a successful prompt. [unlockedCipher] is the CryptoObject cipher
+     * on API 30+; null on API 24-29, where the key is unlocked for a short
+     * window and the cipher is created now.
+     */
+    fun openSavedCopy(noteId: String, unlockedCipher: Cipher?) {
+        viewModelScope.launch {
+            try {
+                val cipher = unlockedCipher ?: repository.savedCopyUnlockCipher()
+                _openedCopy.value = OpenedSavedCopy(noteId, repository.openSavedCopy(noteId, cipher))
+            } catch (e: SavedCopyUnavailableException) {
+                reportSavedCopyUnavailable()
+            } catch (e: Exception) {
+                reportSavedCopyUnavailable()
+            }
+        }
+    }
+
+    fun reportSavedCopyUnavailable() {
+        _error.value = UiError(R.string.saved_copy_unavailable)
+    }
+
+    fun closeSavedCopy() {
+        _openedCopy.value = null
+    }
+
+    fun deleteOpenedSavedCopy() {
+        val opened = _openedCopy.value ?: return
+        _openedCopy.value = null
+        viewModelScope.launch { repository.deleteSavedCopy(opened.noteId) }
+    }
+
+    override fun onCleared() {
+        _openedCopy.value = null
+        super.onCleared()
     }
 }

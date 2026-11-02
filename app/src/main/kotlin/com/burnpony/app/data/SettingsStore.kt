@@ -1,10 +1,17 @@
 //
 // SettingsStore.kt
 // SharedPreferences-backed settings: the custom server URL ("Self-hosting
-// (advanced)") plus the remembered last-used note options (Diego round B3).
-// Views allowed, expiry, and auto-hide persist across notes; passphrase and
-// read receipt DELIBERATELY do not — a sticky passphrase toggle is how
-// someone sends an unprotected note believing it is protected.
+// (advanced)") plus the defaults for new notes. Views allowed, expiry,
+// auto-hide, no-select, and read receipt are user-set defaults edited in
+// Settings ("Defaults for new notes"); each fresh compose form starts from
+// them, and changing an option on one note does not write back. The
+// passphrase is DELIBERATELY never stored: a sticky passphrase toggle is how
+// someone sends an unprotected note believing it is protected. A read
+// receipt is not a protection factor (the recipient is always told about
+// it), so it may be a default.
+//
+// The pref keys keep their pre-2.0 "last..." names so values remembered by
+// older versions carry over as the new defaults.
 //
 
 package com.burnpony.app.data
@@ -57,7 +64,8 @@ class SettingsStore(context: Context) {
         val looksLikeExistingInstall = prefs.contains(KEY_SERVER) ||
             prefs.contains(KEY_LAST_VIEWS) ||
             prefs.contains(KEY_LAST_EXPIRY) ||
-            prefs.contains(KEY_LAST_AUTOHIDE)
+            prefs.contains(KEY_LAST_AUTOHIDE) ||
+            prefs.contains(KEY_DEFAULT_RECEIPT)
         prefs.edit().putBoolean(KEY_ONBOARDING, looksLikeExistingInstall).apply()
         return looksLikeExistingInstall
     }
@@ -67,33 +75,92 @@ class SettingsStore(context: Context) {
         _onboardingCompleted.value = value
     }
 
-    // Last-used note options. Read once when the compose form initializes.
-    var lastViewsAllowed: Int
-        get() = prefs.getInt(KEY_LAST_VIEWS, 1).coerceIn(1, 100)
-        set(value) = prefs.edit().putInt(KEY_LAST_VIEWS, value.coerceIn(1, 100)).apply()
+    // Defaults for new notes. Read by the compose form each time it starts a
+    // fresh note; written only from Settings. StateFlows so the Settings
+    // screen redraws on change.
+    private val _defaultViewsAllowed = MutableStateFlow(prefs.getInt(KEY_LAST_VIEWS, 1).coerceIn(1, 100))
+    val defaultViewsAllowedFlow: StateFlow<Int> = _defaultViewsAllowed
+    var defaultViewsAllowed: Int
+        get() = _defaultViewsAllowed.value
+        set(value) {
+            val v = value.coerceIn(1, 100)
+            prefs.edit().putInt(KEY_LAST_VIEWS, v).apply()
+            _defaultViewsAllowed.value = v
+        }
 
-    var lastExpirySeconds: Int
-        get() = prefs.getInt(KEY_LAST_EXPIRY, 86_400)
-        set(value) = prefs.edit().putInt(KEY_LAST_EXPIRY, value).apply()
+    private val _defaultExpirySeconds = MutableStateFlow(prefs.getInt(KEY_LAST_EXPIRY, 86_400))
+    val defaultExpirySecondsFlow: StateFlow<Int> = _defaultExpirySeconds
+    var defaultExpirySeconds: Int
+        get() = _defaultExpirySeconds.value
+        set(value) {
+            prefs.edit().putInt(KEY_LAST_EXPIRY, value).apply()
+            _defaultExpirySeconds.value = value
+        }
 
-    var lastAutoHideSeconds: Int
-        get() = prefs.getInt(KEY_LAST_AUTOHIDE, 0)
-        set(value) = prefs.edit().putInt(KEY_LAST_AUTOHIDE, value).apply()
+    private val _defaultAutoHideSeconds = MutableStateFlow(prefs.getInt(KEY_LAST_AUTOHIDE, 0))
+    val defaultAutoHideSecondsFlow: StateFlow<Int> = _defaultAutoHideSeconds
+    var defaultAutoHideSeconds: Int
+        get() = _defaultAutoHideSeconds.value
+        set(value) {
+            prefs.edit().putInt(KEY_LAST_AUTOHIDE, value).apply()
+            _defaultAutoHideSeconds.value = value
+        }
 
-    // Remembered like auto-hide rather than reset like the passphrase: it is a
-    // presentation preference about the recipient's screen, not a second
-    // factor, so a sticky value cannot cause someone to send an unprotected
-    // note believing it is protected.
-    var lastNoSelect: Boolean
-        get() = prefs.getBoolean(KEY_LAST_NO_SELECT, false)
-        set(value) = prefs.edit().putBoolean(KEY_LAST_NO_SELECT, value).apply()
+    // A presentation preference about the recipient's screen, not a second
+    // factor, so a default cannot cause someone to send an unprotected note
+    // believing it is protected.
+    private val _defaultNoSelect = MutableStateFlow(prefs.getBoolean(KEY_LAST_NO_SELECT, false))
+    val defaultNoSelectFlow: StateFlow<Boolean> = _defaultNoSelect
+    var defaultNoSelect: Boolean
+        get() = _defaultNoSelect.value
+        set(value) {
+            prefs.edit().putBoolean(KEY_LAST_NO_SELECT, value).apply()
+            _defaultNoSelect.value = value
+        }
+
+    private val _defaultReceiptEnabled = MutableStateFlow(prefs.getBoolean(KEY_DEFAULT_RECEIPT, false))
+    val defaultReceiptEnabledFlow: StateFlow<Boolean> = _defaultReceiptEnabled
+    var defaultReceiptEnabled: Boolean
+        get() = _defaultReceiptEnabled.value
+        set(value) {
+            prefs.edit().putBoolean(KEY_DEFAULT_RECEIPT, value).apply()
+            _defaultReceiptEnabled.value = value
+        }
+
+    // Saved copies (opt-in, off by default). When on, the compose form offers
+    // a per-note "Keep a copy on this device" switch; the copy is encrypted
+    // with a device-only Keystore key (SavedCopyCrypto). Max age 0 = never
+    // auto-delete; otherwise one of SavedCopyRetention.CHOICES_DAYS.
+    private val _savedCopiesEnabled = MutableStateFlow(prefs.getBoolean(KEY_SAVED_COPIES, false))
+    val savedCopiesEnabledFlow: StateFlow<Boolean> = _savedCopiesEnabled
+    var savedCopiesEnabled: Boolean
+        get() = _savedCopiesEnabled.value
+        set(value) {
+            prefs.edit().putBoolean(KEY_SAVED_COPIES, value).apply()
+            _savedCopiesEnabled.value = value
+        }
+
+    private val _savedCopiesMaxAgeDays = MutableStateFlow(
+        SavedCopyRetention.normalize(prefs.getInt(KEY_SAVED_COPIES_MAX_AGE, 0))
+    )
+    val savedCopiesMaxAgeDaysFlow: StateFlow<Int> = _savedCopiesMaxAgeDays
+    var savedCopiesMaxAgeDays: Int
+        get() = _savedCopiesMaxAgeDays.value
+        set(value) {
+            val v = SavedCopyRetention.normalize(value)
+            prefs.edit().putInt(KEY_SAVED_COPIES_MAX_AGE, v).apply()
+            _savedCopiesMaxAgeDays.value = v
+        }
 
     companion object {
+        private const val KEY_SAVED_COPIES = "savedCopiesEnabled"
+        private const val KEY_SAVED_COPIES_MAX_AGE = "savedCopiesMaxAgeDays"
         private const val KEY_SERVER = "serverBaseURL"
         private const val KEY_LAST_VIEWS = "lastViewsAllowed"
         private const val KEY_LAST_EXPIRY = "lastExpirySeconds"
         private const val KEY_LAST_AUTOHIDE = "lastAutoHideSeconds"
         private const val KEY_LAST_NO_SELECT = "lastNoSelect"
+        private const val KEY_DEFAULT_RECEIPT = "defaultReceiptEnabled"
         private const val KEY_ONBOARDING = "onboardingCompleted"
     }
 }

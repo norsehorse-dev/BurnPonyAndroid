@@ -2,7 +2,7 @@
 // BurnPonyFcmService.kt (standard flavor)
 // Receives FCM messages and token rotations.
 //
-// Diego round B5 (notification label rewrite): Android needs no service
+// Tester round B5 (notification label rewrite): Android needs no service
 // extension — the label is looked up in the local Room store by note_id and
 // the body becomes “{label}” was opened; any unexpected condition falls back
 // to the generic body. The server never knows any label.

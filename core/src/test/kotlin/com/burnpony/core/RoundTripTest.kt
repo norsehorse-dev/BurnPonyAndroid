@@ -96,6 +96,39 @@ class RoundTripTest {
     }
 
     @Test
+    fun shareLinkInstantOpenFlag() {
+        val key = BurnPonyCrypto.fragmentDecode(VectorSuite.vectors[0].keyFragment)
+        val fragment = VectorSuite.vectors[0].keyFragment
+        val base = "https://burnpony.app"
+        // All false: no suffix at all, with or without the named argument.
+        assertEquals(
+            "$base/n/abc123#$fragment",
+            BurnPonyCrypto.shareLink(base, "abc123", key, hasPassword = false, hasReceipt = false, instantOpen = false),
+        )
+        assertEquals(
+            "$base/n/abc123#$fragment.i",
+            BurnPonyCrypto.shareLink(base, "abc123", key, hasPassword = false, hasReceipt = false, instantOpen = true),
+        )
+        assertEquals(
+            "$base/n/abc123#$fragment.pi",
+            BurnPonyCrypto.shareLink(base, "abc123", key, hasPassword = true, hasReceipt = false, instantOpen = true),
+        )
+        // Receipt wins: instant open is dropped when a receipt is on.
+        assertEquals(
+            "$base/n/abc123#$fragment.r",
+            BurnPonyCrypto.shareLink(base, "abc123", key, hasPassword = false, hasReceipt = true, instantOpen = true),
+        )
+        assertEquals(
+            "$base/n/abc123#$fragment.pr",
+            BurnPonyCrypto.shareLink(base, "abc123", key, hasPassword = true, hasReceipt = true, instantOpen = true),
+        )
+        for (hasPassword in listOf(false, true)) {
+            val link = BurnPonyCrypto.shareLink(base, "abc123", key, hasPassword, hasReceipt = true, instantOpen = true)
+            assertTrue(!link.endsWith("ri") && !link.endsWith(".pri"))
+        }
+    }
+
+    @Test
     fun envelopeJsonIsDeterministicKeyOrder() {
         val envelope = NoteEnvelope(1, true, "c2FsdA==", "bm9uY2U=", "Y3Q=")
         assertEquals(

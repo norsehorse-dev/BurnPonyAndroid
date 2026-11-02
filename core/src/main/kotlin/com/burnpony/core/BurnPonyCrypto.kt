@@ -405,10 +405,13 @@ object BurnPonyCrypto {
     }
 
     // MARK: - Share link assembly
-    // Fragment flags: .p passphrase set, .r receipts on, combined .pr. Flags
-    // live in the fragment so the server never sees them; they let the viewer
-    // show the passphrase field and receipt disclosure before the
-    // view-consuming reveal tap.
+    // Fragment flags: .p passphrase set, .r receipts on, .i instant open,
+    // always in that order (p, r, i), e.g. .pr or .pi. Flags live in the
+    // fragment so the server never sees them; they let the viewer show the
+    // passphrase field and receipt disclosure before the view-consuming
+    // reveal tap. Instant open skips that tap, so it is never emitted
+    // alongside a receipt: the recipient must be told about the receipt
+    // before the note opens, and receipt wins. Viewers ignore unknown letters.
 
     fun shareLink(baseUrl: String, noteId: String, fragmentKey: ByteArray): String =
         shareLink(baseUrl, noteId, fragmentKey, hasPassword = false, hasReceipt = false)
@@ -419,10 +422,12 @@ object BurnPonyCrypto {
         fragmentKey: ByteArray,
         hasPassword: Boolean,
         hasReceipt: Boolean,
+        instantOpen: Boolean = false,
     ): String {
         var flags = ""
         if (hasPassword) flags += "p"
         if (hasReceipt) flags += "r"
+        if (instantOpen && !hasReceipt) flags += "i"
         val suffix = if (flags.isEmpty()) "" else ".$flags"
         return "$baseUrl/n/$noteId#${fragmentEncode(fragmentKey)}$suffix"
     }

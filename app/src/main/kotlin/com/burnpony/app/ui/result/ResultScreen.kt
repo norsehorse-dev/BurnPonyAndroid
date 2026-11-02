@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.burnpony.app.R
 import com.burnpony.app.data.CreatedNote
+import com.burnpony.app.data.NoteKind
 import com.burnpony.app.theme.BurnPonyTheme
 import kotlinx.coroutines.delay
 import java.util.Date
@@ -97,11 +98,23 @@ fun ResultScreen(note: CreatedNote, onDone: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            if (note.hasPassword) {
-                PassphraseReminder()
+            Reminder(note)
+            if (note.kind == NoteKind.SPLIT) {
+                Text(
+                    stringResource(R.string.result_split_header, note.links.size),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = BurnPonyTheme.ink,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                note.links.forEach { link ->
+                    val label = link.keyIndex?.let { stringResource(R.string.result_key, it + 1) }
+                    LinkCard(url = link.url, label = label)
+                    QrCard(url = link.url)
+                }
+            } else {
+                LinkCard(url = note.shareLink, label = null)
+                QrCard(url = note.shareLink)
             }
-            LinkCard(note)
-            QrCard(note)
             val context = LocalContext.current
             val expiresText = remember(note.expiresAtEpochMs) {
                 DateFormat.getMediumDateFormat(context).format(Date(note.expiresAtEpochMs)) +
@@ -119,7 +132,17 @@ fun ResultScreen(note: CreatedNote, onDone: () -> Unit) {
 }
 
 @Composable
-private fun PassphraseReminder() {
+private fun Reminder(note: CreatedNote) {
+    val text = when (note.kind) {
+        NoteKind.DECOY -> stringResource(R.string.result_decoy_reminder)
+        NoteKind.SPLIT -> stringResource(R.string.result_split_reminder)
+        NoteKind.SIMPLE -> if (note.hasPassword) stringResource(R.string.result_passphrase_reminder) else null
+    }
+    if (text != null) NoticeCard(text)
+}
+
+@Composable
+private fun NoticeCard(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,16 +152,12 @@ private fun PassphraseReminder() {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Icon(Icons.Filled.Key, null, tint = BurnPonyTheme.ember)
-        Text(
-            stringResource(R.string.result_passphrase_reminder),
-            color = BurnPonyTheme.ink,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        Text(text, color = BurnPonyTheme.ink, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
 @Composable
-private fun LinkCard(note: CreatedNote) {
+private fun LinkCard(url: String, label: String?) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
     var copied by remember { mutableStateOf(false) }
@@ -157,8 +176,11 @@ private fun LinkCard(note: CreatedNote) {
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        if (label != null) {
+            Text(label, style = MaterialTheme.typography.labelMedium, color = BurnPonyTheme.ember, fontWeight = FontWeight.SemiBold)
+        }
         Text(
-            note.shareLink,
+            url,
             fontFamily = FontFamily.Monospace,
             style = MaterialTheme.typography.bodySmall,
             color = BurnPonyTheme.ink,
@@ -178,7 +200,7 @@ private fun LinkCard(note: CreatedNote) {
                     .clickable {
                         val send = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, note.shareLink)
+                            putExtra(Intent.EXTRA_TEXT, url)
                         }
                         context.startActivity(Intent.createChooser(send, null))
                     }
@@ -203,7 +225,7 @@ private fun LinkCard(note: CreatedNote) {
                     .weight(1f)
                     .border(1.dp, BurnPonyTheme.line, RoundedCornerShape(10.dp))
                     .clickable {
-                        clipboard.setText(AnnotatedString(note.shareLink))
+                        clipboard.setText(AnnotatedString(url))
                         copied = true
                     }
                     .padding(vertical = 12.dp),
@@ -231,8 +253,8 @@ private fun LinkCard(note: CreatedNote) {
 }
 
 @Composable
-private fun QrCard(note: CreatedNote) {
-    val qr = remember(note.shareLink) { QrCode.generate(note.shareLink) }
+private fun QrCard(url: String) {
+    val qr = remember(url) { QrCode.generate(url) }
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -1,17 +1,45 @@
 //
 // SentNotesScreen.kt
-// Diego rounds folded in: device-local labels as the primary line (date
+// Tester rounds folded in: device-local labels as the primary line (date
 // secondary; unlabeled notes show the date as before), Active in GREEN,
 // Clear Inactive toolbar action (visible only when an inactive note exists),
 // leading swipe = Change Expiry on active notes with the nine-preset
 // "New expiration" dialog ("Counted from now."), trailing swipe = burn with
 // confirmation or remove when burned/gone. Offline keeps last known status.
 //
+// Saved copies: rows holding one show a small document icon and a visible
+// "Show saved copy" action. Opening it runs BiometricPrompt against the
+// Keystore key (CryptoObject on API 30+, timed unlock on API 24-29), then
+// shows the text full screen with FLAG_SECURE on both the activity window
+// and the dialog window. Leaving the app closes the copy.
+//
 
 package com.burnpony.app.ui.sent
 
+import android.app.KeyguardManager
+import android.content.Context
+import android.content.ContextWrapper
+import android.os.Build
 import android.text.format.DateFormat
 import android.text.format.DateUtils
+import android.view.WindowManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.biometric.BiometricPrompt
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,11 +106,17 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
     val expiryTarget by viewModel.expiryTarget.collectAsStateWithLifecycle()
     val showClearInactive by viewModel.showClearInactive.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
+    val openedCopy by viewModel.openedCopy.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val unlockTitle = stringResource(R.string.saved_copy_auth_title)
 
     // Refresh on entry, like .task on iOS.
     LaunchedEffect(Unit) { viewModel.refresh() }
 
-    val hasInactive = notes.any { it.burned || it.goneFromServer }
+    // Clear Inactive skips records holding a saved copy, so it only shows
+    // when something would actually be removed.
+    val hasInactive = notes.any { (it.burned || it.goneFromServer) && it.savedCopy == null }
+    val inactiveKeptForCopies = notes.any { (it.burned || it.goneFromServer) && it.savedCopy != null }
 
     Scaffold(
         containerColor = BurnPonyTheme.background,
@@ -129,6 +163,14 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
                                 onBurn = { viewModel.requestBurn(note) },
                                 onRemove = { viewModel.remove(note) },
                                 onChangeExpiry = { viewModel.requestExpiryChange(note) },
+                                onShowSavedCopy = {
+                                    val activity = context.findFragmentActivity()
+                                    if (activity == null) {
+                                        viewModel.reportSavedCopyUnavailable()
+                                    } else {
+                                        unlockSavedCopy(activity, note.id, unlockTitle, viewModel)
+                                    }
+                                },
                             )
                         }
                     }
@@ -203,7 +245,14 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
             titleContentColor = BurnPonyTheme.ink,
             textContentColor = BurnPonyTheme.dim,
             title = { Text(stringResource(R.string.sent_clear_inactive_title)) },
-            text = { Text(stringResource(R.string.sent_clear_inactive_message)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.sent_clear_inactive_message))
+                    if (inactiveKeptForCopies) {
+                        Text(stringResource(R.string.sent_clear_keeps_copies))
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = viewModel::confirmClearInactive) {
                     Text(stringResource(R.string.sent_remove), color = BurnPonyTheme.danger)
@@ -214,6 +263,16 @@ fun SentNotesScreen(viewModel: SentNotesViewModel) {
                     Text(stringResource(R.string.common_cancel), color = BurnPonyTheme.dim)
                 }
             },
+        )
+    }
+
+    openedCopy?.let { copy ->
+        // Backgrounding the app closes the copy; reopening asks again.
+        LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.closeSavedCopy() }
+        SavedCopyDialog(
+            text = copy.text,
+            onClose = viewModel::closeSavedCopy,
+            onDelete = viewModel::deleteOpenedSavedCopy,
         )
     }
 
@@ -273,6 +332,7 @@ private fun SwipeableNoteRow(
     onBurn: () -> Unit,
     onRemove: () -> Unit,
     onChangeExpiry: () -> Unit,
+    onShowSavedCopy: () -> Unit,
 ) {
     val removable = note.burned || note.goneFromServer
     val dismissState = rememberSwipeToDismissBoxState(
@@ -336,12 +396,12 @@ private fun SwipeableNoteRow(
             }
         },
     ) {
-        SentNoteRow(note, receiptTimes)
+        SentNoteRow(note, receiptTimes, onShowSavedCopy)
     }
 }
 
 @Composable
-private fun SentNoteRow(note: SentNoteEntity, receiptTimes: List<Long>) {
+private fun SentNoteRow(note: SentNoteEntity, receiptTimes: List<Long>, onShowSavedCopy: () -> Unit) {
     val context = LocalContext.current
     val stateLabel: Pair<Int, Color> = when {
         note.goneFromServer -> R.string.sent_state_gone to BurnPonyTheme.dim
@@ -414,6 +474,14 @@ private fun SentNoteRow(note: SentNoteEntity, receiptTimes: List<Long>) {
             if (note.autoHideSeconds > 0) {
                 Icon(Icons.Filled.Timer, null, tint = BurnPonyTheme.dim, modifier = Modifier.size(14.dp))
             }
+            if (note.savedCopy != null) {
+                Icon(
+                    Icons.Filled.Description,
+                    contentDescription = stringResource(R.string.saved_copy_badge),
+                    tint = BurnPonyTheme.dim,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
         }
         if (note.receiptEnabled) {
             if (receiptTimes.isEmpty()) {
@@ -443,6 +511,11 @@ private fun SentNoteRow(note: SentNoteEntity, receiptTimes: List<Long>) {
                 }
             }
         }
+        if (note.savedCopy != null) {
+            TextButton(onClick = onShowSavedCopy) {
+                Text(stringResource(R.string.saved_copy_show), color = BurnPonyTheme.ember)
+            }
+        }
     }
 }
 
@@ -454,5 +527,143 @@ private fun BadgeItem(icon: ImageVector, label: String) {
     ) {
         Icon(icon, null, tint = BurnPonyTheme.dim, modifier = Modifier.size(14.dp))
         Text(label, style = MaterialTheme.typography.bodySmall, color = BurnPonyTheme.dim)
+    }
+}
+
+// ── Saved copies ─────────────────────────────────────────────────────────
+
+/** AppCompat may wrap the Activity context (per-app language), so unwrap. */
+private tailrec fun Context.findFragmentActivity(): FragmentActivity? = when (this) {
+    is FragmentActivity -> this
+    is ContextWrapper -> baseContext.findFragmentActivity()
+    else -> null
+}
+
+/**
+ * Unlocks the Keystore key and opens the copy for [noteId].
+ *
+ * API 30+: the key needs a fresh auth per use, so the decrypt cipher goes
+ * into the prompt as a CryptoObject (BIOMETRIC_STRONG or DEVICE_CREDENTIAL,
+ * valid with a CryptoObject from API 30 in androidx.biometric 1.1.0).
+ *
+ * API 24-29: a CryptoObject cannot be combined with the screen lock there,
+ * so the key is time-bound instead. The prompt runs without a CryptoObject
+ * (BIOMETRIC_WEAK or DEVICE_CREDENTIAL, the combination 1.1.0 supports on
+ * every API level) and the copy is opened inside the unlock window.
+ */
+private fun unlockSavedCopy(
+    activity: FragmentActivity,
+    noteId: String,
+    title: String,
+    viewModel: SentNotesViewModel,
+) {
+    val keyguard = activity.getSystemService(KeyguardManager::class.java)
+    if (keyguard == null || !keyguard.isDeviceSecure) {
+        // Without a screen lock the key no longer exists.
+        viewModel.reportSavedCopyUnavailable()
+        return
+    }
+    val callback = object : BiometricPrompt.AuthenticationCallback() {
+        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+            if (Build.VERSION.SDK_INT >= 30) {
+                val cipher = result.cryptoObject?.cipher
+                if (cipher == null) {
+                    viewModel.reportSavedCopyUnavailable()
+                } else {
+                    viewModel.openSavedCopy(noteId, cipher)
+                }
+            } else {
+                viewModel.openSavedCopy(noteId, null)
+            }
+        }
+
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+            // Cancel, back and lockout are the prompt's own business; only a
+            // missing screen lock means the copy cannot be opened.
+            if (errorCode == BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL) {
+                viewModel.reportSavedCopyUnavailable()
+            }
+        }
+    }
+    val prompt = BiometricPrompt(activity, ContextCompat.getMainExecutor(activity), callback)
+    if (Build.VERSION.SDK_INT >= 30) {
+        val info = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title)
+            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+            .build()
+        viewModel.prepareSavedCopyUnlock { cipher ->
+            prompt.authenticate(info, BiometricPrompt.CryptoObject(cipher))
+        }
+    } else {
+        val info = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title)
+            .setAllowedAuthenticators(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
+            .build()
+        prompt.authenticate(info)
+    }
+}
+
+/**
+ * Full-screen view of an opened copy. FLAG_SECURE is set on the dialog's own
+ * window (securePolicy) and on the activity window while it is shown, so
+ * neither screenshots nor the recents thumbnail capture the text.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SavedCopyDialog(
+    text: String,
+    onClose: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    val activity = LocalContext.current.findFragmentActivity()
+    DisposableEffect(activity) {
+        val window = activity?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
+    }
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            securePolicy = SecureFlagPolicy.SecureOn,
+        ),
+    ) {
+        Surface(modifier = Modifier.fillMaxSize(), color = BurnPonyTheme.background) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.saved_copy_title)) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = BurnPonyTheme.background,
+                        titleContentColor = BurnPonyTheme.ink,
+                    ),
+                    actions = {
+                        TextButton(onClick = onClose) {
+                            Text(stringResource(R.string.common_done), color = BurnPonyTheme.ember)
+                        }
+                    },
+                )
+                SelectionContainer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                ) {
+                    Text(
+                        text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = BurnPonyTheme.ink,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp),
+                    )
+                }
+                TextButton(
+                    onClick = onDelete,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                ) {
+                    Text(stringResource(R.string.saved_copy_delete), color = BurnPonyTheme.danger)
+                }
+            }
+        }
     }
 }

@@ -74,6 +74,7 @@ enum class LegalDocument(
             LegalSection(null, R.string.privacy_intro),
             LegalSection(R.string.privacy_who_h, R.string.privacy_who_b),
             LegalSection(R.string.privacy_app_h, R.string.privacy_app_b),
+            LegalSection(R.string.privacy_saved_h, R.string.privacy_saved_b),
             LegalSection(R.string.privacy_relay_h, R.string.privacy_relay_b),
             LegalSection(R.string.privacy_deletion_h, R.string.privacy_deletion_b),
             LegalSection(R.string.privacy_ratelimit_h, R.string.privacy_ratelimit_b),

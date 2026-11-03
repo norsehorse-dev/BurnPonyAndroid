@@ -191,4 +191,7 @@
     <string name="saved_copy_title">Copie enregistrée</string>
     <string name="saved_copy_delete">Supprimer la copie enregistrée</string>
     <string name="sent_clear_keeps_copies">Les notes avec une copie enregistrée sont conservées. Supprimez une copie depuis la note elle-même.</string>
+    <string name="pony_tappony_subtitle">Tags NFC vers webhooks</string>
+    <string name="pony_hashpony_subtitle">Hachage et vérification de fichiers</string>
+    <string name="pony_stegpony_subtitle">Messages cachés dans photos et texte</string>
 </resources>

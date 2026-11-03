@@ -127,6 +127,9 @@
     <string name="pony_scrubpony_subtitle">Photo metadata scrubber</string>
     <string name="pony_vaultpony_subtitle">VeraCrypt-compatible vaults</string>
     <string name="pony_passpony_subtitle">Password manager for pass and age</string>
+    <string name="pony_tappony_subtitle">NFC tags to webhooks</string>
+    <string name="pony_hashpony_subtitle">File hashing and verification</string>
+    <string name="pony_stegpony_subtitle">Hidden messages in photos and text</string>
     <string name="settings_link_pony_family">All pony apps</string>
     <!-- Proxy (SOCKS5 / Tor) -->
     <string name="settings_proxy_header">Proxy (Tor)</string>

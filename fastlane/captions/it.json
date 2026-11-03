@@ -1,0 +1,22 @@
+{
+  "1_compose": {
+    "title": "Note che bruciano appena lette",
+    "sub": "Cifrate sul tuo telefono prima dell'invio"
+  },
+  "2_double_bottom": {
+    "title": "Un link, scomparti nascosti",
+    "sub": "Ogni passphrase apre solo il proprio scomparto"
+  },
+  "3_options": {
+    "title": "Le regole le decidi tu",
+    "sub": "Visualizzazioni, scadenza, apertura, conferme"
+  },
+  "4_share": {
+    "title": "Condividi un solo link",
+    "sub": "Si legge nel browser. Niente da installare."
+  },
+  "5_sent": {
+    "title": "Segui ogni nota",
+    "sub": "Scopri quando viene aperta. Tieni una copia se vuoi."
+  }
+}

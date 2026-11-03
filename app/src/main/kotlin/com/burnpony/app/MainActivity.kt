@@ -7,6 +7,7 @@
 
 package com.burnpony.app
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -27,7 +28,9 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -72,6 +75,10 @@ private val TABS = listOf(
 // picker would appear to do nothing on most of our minSdk 24 range.
 class MainActivity : AppCompatActivity() {
 
+    // Store-screenshot route from the debug-only Demo (always null in
+    // release, where Demo is a no-op stub).
+    private val demoRoute = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Re-sync the language mirror from THIS Activity's configuration.
@@ -83,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         // Activity config reflects what was actually applied, on every API
         // level, and also catches a change made from system Settings.
         LanguageState.current.value = LanguageManager.detectInitialLanguage(this).tag
+        demoRoute.value = Demo.handle(this, intent)
         // Dark bars unconditionally: bare enableEdgeToEdge() picks icon
         // colour from the SYSTEM light/dark setting, but BurnPony is dark-only
         // on both platforms, so a phone in light mode got dark status-bar
@@ -112,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                             Modifier
                         }
                     ) {
-                        MainScaffold(factory)
+                        MainScaffold(factory, demoRoute.value)
                     }
                     if (!onboardingCompleted) {
                         OnboardingScreen(
@@ -123,6 +131,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        Demo.handle(this, intent)?.let { demoRoute.value = it }
     }
 }
 
@@ -138,7 +152,7 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
 }
 
 @Composable
-private fun MainScaffold(factory: ViewModelFactory) {
+private fun MainScaffold(factory: ViewModelFactory, demoRoute: String? = null) {
     val navController = rememberNavController()
     val backStack by navController.currentBackStackEntryAsState()
     val currentDestination = backStack?.destination
@@ -203,6 +217,17 @@ private fun MainScaffold(factory: ViewModelFactory) {
                     document = LegalDocument.fromRoute(entry.arguments?.getString("doc")),
                     onBack = { navController.popBackStack() },
                 )
+            }
+        }
+        // Debug store screenshots only: open the tab Demo asked for. Placed
+        // after NavHost so the graph is already set. Null in release.
+        LaunchedEffect(demoRoute) {
+            val route = demoRoute ?: return@LaunchedEffect
+            if (navController.currentDestination?.route != route) {
+                navController.navigate(route) {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                }
             }
         }
     }

@@ -31,7 +31,9 @@ class AppContainer(app: Application) {
     // Codegen adapters only; no reflective factory anywhere (house rule).
     private val moshi: Moshi = Moshi.Builder().build()
 
-    private val database = BurnPonyDatabase.build(app)
+    // internal (not private) so the debug-only Demo can seed screenshot rows
+    // through the same Room instance the UI observes.
+    internal val database = BurnPonyDatabase.build(app)
 
     // The relay client is supplied per request by HttpClientFactory so the
     // SOCKS/Tor proxy chosen in Settings applies uniformly and takes effect

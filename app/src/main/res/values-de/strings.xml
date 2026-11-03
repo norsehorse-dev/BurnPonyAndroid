@@ -191,4 +191,7 @@
     <string name="saved_copy_title">Gespeicherte Kopie</string>
     <string name="saved_copy_delete">Gespeicherte Kopie löschen</string>
     <string name="sent_clear_keeps_copies">Notizen mit gespeicherter Kopie bleiben erhalten. Lösche eine Kopie direkt in der Notiz.</string>
+    <string name="pony_tappony_subtitle">NFC-Tags zu Webhooks</string>
+    <string name="pony_hashpony_subtitle">Datei-Hashing und Verifizierung</string>
+    <string name="pony_stegpony_subtitle">Geheime Nachrichten in Fotos und Text</string>
 </resources>

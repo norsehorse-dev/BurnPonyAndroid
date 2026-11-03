@@ -85,6 +85,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.burnpony.app.Demo
 import com.burnpony.app.R
 import com.burnpony.app.push.PushSupport
 import com.burnpony.app.theme.BurnPonyTheme
@@ -208,7 +209,9 @@ fun ComposeScreen(viewModel: ComposeViewModel) {
     if (state.showingOptions) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.setShowingOptions(false) },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+            // Debug store screenshots open the sheet fully expanded so more
+            // options fit in one frame; Demo.active is always false in release.
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = Demo.active),
             containerColor = BurnPonyTheme.panel,
         ) {
             OptionsSheet(state, viewModel, onReceiptToggled, savedCopiesEnabled)

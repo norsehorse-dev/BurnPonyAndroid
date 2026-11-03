@@ -1,0 +1,34 @@
+Schick ein Geheimnis, ohne dass die andere Person etwas installieren muss.
+
+Schreib eine Notiz, leg die Regeln für die Selbstzerstörung fest und teile einen einzigen Link. Die Notiz wird auf deinem Gerät mit AES-256-GCM verschlüsselt, bevor irgendetwas hochgeladen wird, und erst im Browser des Empfängers entschlüsselt. Der Entschlüsselungsschlüssel steckt im Teil des Links nach dem #, den Browser nie an einen Server senden. Der Server speichert also nur Chiffretext, den er nicht lesen kann, dazu eine Notiz-ID, einen Ansichtszähler und eine Ablaufzeit. Keine Konten, keine Namen, keine Analytik.
+
+DREI ARTEN VON NOTIZEN
+• Einfach: eine Notiz, ein Link, optional mit Passphrase
+• Doppelter Boden: ein Link mit getrennten Fächern, jedes mit eigener Passphrase. Gibst du eine Passphrase heraus, wird nur dieses Fach sichtbar; niemand kann beweisen, dass es die anderen gibt
+• Geteilter Schlüssel: Die Notiz öffnet sich erst, wenn genügend Schlüssel-Links kombiniert werden, zum Beispiel beliebige 2 von 3
+
+WAS DU BESTIMMST
+• Ansichten: nach einmaligem Lesen verbrennen oder bis zu 100 erlauben
+• Ablauf: 5 Minuten bis 30 Tage, später änderbar, jeweils ab jetzt gerechnet
+• Verfügbar ab: Die Notiz bleibt bis zum gewählten Zeitpunkt verborgen und sieht aus, als gäbe es sie nicht
+• Optionale Passphrase, mit PBKDF2 gestreckt und in den Schlüssel eingemischt. Schick sie über einen anderen Kanal als den Link
+• Sofort öffnen: kein Bestätigungsbildschirm, wenn die Notiz schon beim ersten Aufruf aufgehen soll
+• Automatisch ausblenden: Die angezeigte Notiz verschwindet nach einem Timer wieder
+• Lesebestätigungen, die dem Empfänger angekündigt werden, bevor er die Notiz anzeigt. BurnPony macht kein heimliches Lese-Tracking
+• Standardeinstellungen für neue Notizen, einmal in den Einstellungen festgelegt
+• Ein privates Etikett für deine eigene Liste; es verlässt dein Gerät nie
+• QR-Code für die Übergabe vor Ort: Der ganze Link samt Schlüssel wird ganz ohne Netzwerk übertragen
+
+GESPEICHERTE KOPIEN (OPTIONAL, STANDARDMÄSSIG AUS)
+Behalte eine Kopie einer gesendeten Notiz, damit du sie auch nach dem Verbrennen noch lesen kannst. Du entscheidest bei jeder Notiz neu. Jede Kopie wird mit einem Schlüssel verschlüsselt, der in der Sicherheitshardware deines Telefons liegt und erst nach Fingerabdruck, Gesicht oder Displaysperre freigegeben wird. Notizen mit doppeltem Boden werden nie gespeichert.
+
+TOR UND PROXYS
+Leite BurnPony mit Orbot über Tor oder über einen beliebigen SOCKS5-Proxy, mit Stream-Isolation. Ist der Proxy nicht erreichbar, schlagen Anfragen fehl, statt auf eine direkte Verbindung auszuweichen.
+
+EHRLICHE GRENZEN
+Wer den vollständigen Link (und die Passphrase, falls gesetzt) hat, kann die Notiz lesen. Ein Empfänger kann eine Notiz immer kopieren oder fotografieren, solange sie sichtbar ist. Selbstzerstörung begrenzt künftigen Zugriff; den Moment des Lesens kontrolliert sie nicht.
+
+OFFEN
+App, Server, Viewer und die Spezifikation des Übertragungsformats sind Open Source (Apache-2.0), mit implementierungsübergreifenden Testvektoren, die mit der iOS-App und dem Web-Viewer geteilt werden. Wer selbst hostet, kann die App in den Einstellungen auf den eigenen Server richten. Protokoll: https://burnpony.app/protocol
+
+BurnPony gehört zur Pony-Familie von Privacy-Tools: Verschlüsselung, die du prüfen kannst, statt einem Entwickler einfach zu glauben.

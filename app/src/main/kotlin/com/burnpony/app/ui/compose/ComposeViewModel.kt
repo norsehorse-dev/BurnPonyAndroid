@@ -12,6 +12,7 @@ package com.burnpony.app.ui.compose
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.burnpony.app.Demo
 import com.burnpony.app.R
 import com.burnpony.app.data.CreatedNote
 import com.burnpony.app.data.NoteRepository
@@ -135,7 +136,9 @@ class ComposeViewModel(
     private val settings: SettingsStore,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(freshForm())
+    // Demo.composeOverride is the debug store-screenshot prefill; the release
+    // stub always returns null, so release starts from freshForm() as before.
+    private val _state = MutableStateFlow(freshForm().let { Demo.composeOverride(it) ?: it })
     val state: StateFlow<ComposeUiState> = _state
 
     /** Settings switch; the per-note "Keep a copy" row shows only when on. */

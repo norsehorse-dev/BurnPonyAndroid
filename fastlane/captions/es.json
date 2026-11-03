@@ -1,0 +1,22 @@
+{
+  "1_compose": {
+    "title": "Notas que se queman al leerlas",
+    "sub": "Cifradas en tu móvil antes de subirse"
+  },
+  "2_double_bottom": {
+    "title": "Un enlace con doble fondo",
+    "sub": "Cada frase de contraseña abre solo su compartimento"
+  },
+  "3_options": {
+    "title": "Tú pones las reglas",
+    "sub": "Vistas, caducidad, apertura y confirmaciones"
+  },
+  "4_share": {
+    "title": "Comparte un solo enlace",
+    "sub": "Se lee en el navegador. Sin instalar nada."
+  },
+  "5_sent": {
+    "title": "Controla cada nota",
+    "sub": "Mira cuándo se abre. Guarda una copia si quieres."
+  }
+}

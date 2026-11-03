@@ -191,4 +191,7 @@
     <string name="saved_copy_title">已存副本</string>
     <string name="saved_copy_delete">删除已存副本</string>
     <string name="sent_clear_keeps_copies">有已存副本的纸条会被保留。请在该纸条中删除副本。</string>
+    <string name="pony_tappony_subtitle">NFC 标签转 Webhook</string>
+    <string name="pony_hashpony_subtitle">文件哈希与校验</string>
+    <string name="pony_stegpony_subtitle">照片和文本中的隐藏信息</string>
 </resources>

@@ -1,0 +1,109 @@
+# BurnPony Android fastlane.
+#
+#   bundle exec fastlane screenshots   raw localized captures (debug Demo build)
+#   bundle exec fastlane frame         framed Play images from the raw captures
+#   bundle exec fastlane bundle        Play AAB (standard flavor, release)
+#   bundle exec fastlane metadata      store listing + framed screenshots to Play
+#
+# Lane code runs with the working directory set to fastlane/, so paths in
+# lanes start with ../ (or are built from __dir__).
+
+require "fileutils"
+
+default_platform(:android)
+
+before_all do
+  Dotenv.overload("../.env") if File.exist?("../.env")
+end
+
+AAB = "app/build/outputs/bundle/standardRelease/app-standard-release.aab"
+
+def version_code
+  File.read("../app/build.gradle.kts")[/versionCode\s*=\s*(\d+)/, 1].to_i
+end
+
+platform :android do
+  lane :screenshots do
+    sh("cd .. && tools/play-screenshots.sh")
+  end
+
+  lane :frame do
+    sh("cd .. && python3 tools/frame_screenshots.py --platform android")
+  end
+
+  lane :bundle do
+    gradle(task: "bundleStandardRelease", project_dir: ".")
+    UI.success("AAB: #{AAB}")
+  end
+
+  # Builds fastlane/play_metadata/ from the store text in
+  # fastlane/metadata/android/ (shared with F-Droid) plus the FRAMED
+  # screenshots from fastlane/framed/android/, then uploads it. The raw,
+  # unframed captures stay in metadata/android for F-Droid only.
+  #
+  # Track and version code: supply attaches the listing to a release on a
+  # track, and without both it defaults to production with an empty version
+  # code and fails with "Could not find release for version code ''". BurnPony
+  # is already live in production, so the default here is the production
+  # track at the versionCode in app/build.gradle.kts. That release must exist
+  # on production; if the current versionCode is still in testing or not
+  # uploaded yet, pass the live one:
+  #   bundle exec fastlane metadata version_code:6
+  #   bundle exec fastlane metadata track:alpha
+  # skip_upload_changelogs is false, so changelogs/<versionCode>.txt in each
+  # locale also replaces that release's notes.
+  lane :metadata do |options|
+    src = File.expand_path("metadata/android", __dir__)
+    framed = File.expand_path("framed/android", __dir__)
+    out = File.expand_path("play_metadata", __dir__)
+
+    FileUtils.rm_rf(out)
+    FileUtils.mkdir_p(out)
+
+    Dir.children(src).sort.each do |locale|
+      locale_dir = File.join(src, locale)
+      next unless File.directory?(locale_dir)
+      dest = File.join(out, locale)
+      FileUtils.mkdir_p(dest)
+
+      Dir.glob(File.join(locale_dir, "*.txt")).each { |f| FileUtils.cp(f, dest) }
+      changelogs = File.join(locale_dir, "changelogs")
+      FileUtils.cp_r(changelogs, dest) if File.directory?(changelogs)
+
+      %w[icon.png featureGraphic.png].each do |img|
+        f = File.join(locale_dir, "images", img)
+        next unless File.exist?(f)
+        FileUtils.mkdir_p(File.join(dest, "images"))
+        FileUtils.cp(f, File.join(dest, "images", img))
+      end
+
+      shots = Dir.glob(File.join(framed, locale, "*.png")).sort
+      if shots.empty?
+        UI.important("#{locale}: no framed screenshots in fastlane/framed/android/#{locale}, Play keeps its current ones")
+      else
+        shot_dir = File.join(dest, "images", "phoneScreenshots")
+        FileUtils.mkdir_p(shot_dir)
+        shots.each { |f| FileUtils.cp(f, shot_dir) }
+        UI.message("#{locale}: #{shots.count} framed screenshots")
+      end
+    end
+
+    # A locale with framed screenshots but no listing text cannot be created
+    # on Play (title is required), so it is skipped rather than uploaded.
+    if File.directory?(framed)
+      (Dir.children(framed).select { |l| File.directory?(File.join(framed, l)) } - Dir.children(src)).sort.each do |l|
+        UI.important("#{l}: framed screenshots but no fastlane/metadata/android/#{l}/ listing text, skipped")
+      end
+    end
+
+    upload_to_play_store(
+      metadata_path: "fastlane/play_metadata",
+      track: options[:track] || "production",
+      version_code: (options[:version_code] || version_code).to_i,
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_changelogs: false,
+      sync_image_upload: true
+    )
+  end
+end

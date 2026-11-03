@@ -1,0 +1,22 @@
+{
+  "1_compose": {
+    "title": "Nach dem Lesen verbrannt",
+    "sub": "Verschlüsselt auf deinem Handy, vor dem Upload"
+  },
+  "2_double_bottom": {
+    "title": "Ein Link, versteckte Fächer",
+    "sub": "Jede Passphrase öffnet nur ihr eigenes Fach"
+  },
+  "3_options": {
+    "title": "Du bestimmst die Regeln",
+    "sub": "Ansichten, Ablauf, Öffnungszeit, Lesebestätigung"
+  },
+  "4_share": {
+    "title": "Nur einen Link teilen",
+    "sub": "Gelesen wird im Browser. Nichts zu installieren."
+  },
+  "5_sent": {
+    "title": "Jede Notiz im Blick",
+    "sub": "Sieh, wann sie geöffnet wird. Kopie, wenn du willst."
+  }
+}

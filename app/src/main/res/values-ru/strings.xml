@@ -191,4 +191,7 @@
     <string name="saved_copy_title">Сохранённая копия</string>
     <string name="saved_copy_delete">Удалить сохранённую копию</string>
     <string name="sent_clear_keeps_copies">Записки с сохранённой копией остаются. Удалить копию можно в самой записке.</string>
+    <string name="pony_tappony_subtitle">NFC-метки для вебхуков</string>
+    <string name="pony_hashpony_subtitle">Хеширование и проверка файлов</string>
+    <string name="pony_stegpony_subtitle">Скрытые сообщения в фото и тексте</string>
 </resources>

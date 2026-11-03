@@ -191,4 +191,7 @@
     <string name="saved_copy_title">保存コピー</string>
     <string name="saved_copy_delete">保存コピーを削除</string>
     <string name="sent_clear_keeps_copies">保存コピーがあるノートは残ります。コピーはノートの画面から削除してください。</string>
+    <string name="pony_tappony_subtitle">NFC タグから Webhook へ</string>
+    <string name="pony_hashpony_subtitle">ファイルのハッシュ計算と検証</string>
+    <string name="pony_stegpony_subtitle">写真やテキスト内の隠しメッセージ</string>
 </resources>

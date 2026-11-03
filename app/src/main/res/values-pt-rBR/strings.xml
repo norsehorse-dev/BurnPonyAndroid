@@ -191,4 +191,7 @@
     <string name="saved_copy_title">Cópia salva</string>
     <string name="saved_copy_delete">Excluir cópia salva</string>
     <string name="sent_clear_keeps_copies">Notas com cópia salva são mantidas. Exclua uma cópia na própria nota.</string>
+    <string name="pony_tappony_subtitle">Tags NFC para webhooks</string>
+    <string name="pony_hashpony_subtitle">Hash e verificação de arquivos</string>
+    <string name="pony_stegpony_subtitle">Mensagens ocultas em fotos e textos</string>
 </resources>

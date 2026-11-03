@@ -1,0 +1,22 @@
+{
+  "1_compose": {
+    "title": "Notes qui brûlent après lecture",
+    "sub": "Chiffrées sur votre téléphone avant l'envoi"
+  },
+  "2_double_bottom": {
+    "title": "Un lien, plusieurs compartiments",
+    "sub": "Chaque phrase secrète n'ouvre que son compartiment"
+  },
+  "3_options": {
+    "title": "Vous fixez les règles",
+    "sub": "Vues, expiration, ouverture, accusés de lecture"
+  },
+  "4_share": {
+    "title": "Partagez un seul lien",
+    "sub": "Lecture dans un navigateur. Rien à installer."
+  },
+  "5_sent": {
+    "title": "Suivez chaque note",
+    "sub": "Sachez quand elle est ouverte. Copie au choix."
+  }
+}

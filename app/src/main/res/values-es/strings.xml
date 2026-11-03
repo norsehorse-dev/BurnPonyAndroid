@@ -191,4 +191,7 @@
     <string name="saved_copy_title">Copia guardada</string>
     <string name="saved_copy_delete">Eliminar copia guardada</string>
     <string name="sent_clear_keeps_copies">Las notas con copia guardada se conservan. Elimina una copia desde la propia nota.</string>
+    <string name="pony_tappony_subtitle">Etiquetas NFC a webhooks</string>
+    <string name="pony_hashpony_subtitle">Hash y verificación de archivos</string>
+    <string name="pony_stegpony_subtitle">Mensajes ocultos en fotos y texto</string>
 </resources>

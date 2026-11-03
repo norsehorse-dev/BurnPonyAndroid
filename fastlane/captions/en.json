@@ -1,0 +1,22 @@
+{
+  "1_compose": {
+    "title": "Notes that burn after reading",
+    "sub": "Encrypted on your phone before upload"
+  },
+  "2_double_bottom": {
+    "title": "One link, hidden compartments",
+    "sub": "Each passphrase opens only its own"
+  },
+  "3_options": {
+    "title": "You set the rules",
+    "sub": "Views, expiry, opening time, receipts"
+  },
+  "4_share": {
+    "title": "Share one link",
+    "sub": "They read it in a browser. Nothing to install."
+  },
+  "5_sent": {
+    "title": "Track every note",
+    "sub": "See when it's opened. Keep a copy if you choose."
+  }
+}

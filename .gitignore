@@ -19,3 +19,14 @@ keystore.properties
 *.jks
 
 _to_delete/
+
+# fastlane / Play (never commit the service account or .env)
+.env
+*service-account*.json
+fastlane/report.xml
+vendor/bundle
+# Regenerated: assembled upload folder and framed Play images. The raw
+# captures in fastlane/metadata/android/*/images/phoneScreenshots ARE
+# committed (F-Droid shows them).
+fastlane/play_metadata/
+fastlane/framed/

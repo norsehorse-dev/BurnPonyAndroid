@@ -1,0 +1,34 @@
+Envía un secreto sin que la otra persona tenga que instalar nada.
+
+Escribe una nota, fija las reglas de autodestrucción y comparte un solo enlace. La nota se cifra en tu dispositivo con AES-256-GCM antes de subir nada y solo se descifra en el navegador del destinatario. La clave de descifrado viaja en la parte del enlace después del #, que los navegadores nunca envían a ningún servidor, así que el servidor guarda texto cifrado que no puede leer, más un ID de nota, un contador de vistas y una caducidad. Sin cuentas, sin nombres, sin analíticas.
+
+TRES TIPOS DE NOTA
+• Simple: una nota, un enlace, frase de contraseña opcional
+• Doble fondo: un enlace con compartimentos separados, cada uno con su propia frase de contraseña. Entrega una frase y solo se mostrará ese compartimento; nadie puede probar que los demás existen
+• Clave dividida: la nota solo se abre cuando se combinan suficientes enlaces de clave, por ejemplo 2 cualesquiera de 3
+
+LO QUE TÚ CONTROLAS
+• Vistas: quemar tras 1 lectura o permitir hasta 100
+• Caducidad: de 5 minutos a 30 días, modificable después, siempre contada desde ese momento
+• Disponible a partir de: la nota permanece oculta, como si no existiera, hasta la hora que elijas
+• Frase de contraseña opcional, reforzada con PBKDF2 y mezclada con la clave. Envíala por un canal distinto al del enlace
+• Abrir al instante: sin pantalla de confirmación cuando la nota deba abrirse en la primera visita
+• Ocultar tras revelar: la nota revelada vuelve a ocultarse al terminar un temporizador
+• Confirmaciones de lectura, que se comunican al destinatario antes de que revele la nota. BurnPony no hace seguimiento de lectura silencioso
+• Valores predeterminados para notas nuevas, fijados una sola vez en Ajustes
+• Una etiqueta privada para tu propia lista; nunca sale de tu dispositivo
+• Código QR para entregarla en persona: el enlace completo, clave incluida, se transfiere sin ninguna red
+
+COPIAS GUARDADAS (OPCIONALES, DESACTIVADAS POR DEFECTO)
+Conserva una copia de una nota que envías para releerla después de que se queme. Lo decides en cada nota. Cada copia se cifra con una clave alojada en el hardware seguro de tu teléfono, que solo la libera tras tu huella, tu cara o el bloqueo de pantalla. Las notas de doble fondo nunca se guardan.
+
+TOR Y SERVIDORES PROXY
+Enruta BurnPony por Tor con Orbot, o por cualquier proxy SOCKS5, con aislamiento de flujos. Si el proxy no está disponible, las solicitudes fallan en lugar de recurrir a una conexión directa.
+
+LÍMITES HONESTOS
+Quien tenga el enlace completo (y la frase de contraseña, si existe) puede leer la nota. Un destinatario siempre puede copiar o fotografiar una nota mientras es visible. La autodestrucción limita el acceso futuro; no controla el momento de la lectura.
+
+CÓDIGO ABIERTO
+La app, el servidor, el visor y la especificación del formato de transmisión son de código abierto (Apache-2.0), con vectores de prueba entre implementaciones compartidos con la app de iOS y el visor web. Si alojas tu propio servidor, puedes apuntar la app a él desde Ajustes. Protocolo: https://burnpony.app/protocol
+
+BurnPony forma parte de la familia pony de herramientas de privacidad: cifrado que puedes inspeccionar en lugar de fiarte de la palabra de un desarrollador.

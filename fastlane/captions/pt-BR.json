@@ -1,0 +1,22 @@
+{
+  "1_compose": {
+    "title": "Notas que queimam após a leitura",
+    "sub": "Criptografadas no celular antes do envio"
+  },
+  "2_double_bottom": {
+    "title": "Um link, compartimentos ocultos",
+    "sub": "Cada frase secreta abre só o seu"
+  },
+  "3_options": {
+    "title": "Você define as regras",
+    "sub": "Visualizações, expiração, abertura, confirmação"
+  },
+  "4_share": {
+    "title": "Compartilhe um só link",
+    "sub": "Abre no navegador. Nada para instalar."
+  },
+  "5_sent": {
+    "title": "Acompanhe cada nota",
+    "sub": "Veja quando foi aberta. Cópia salva, se quiser."
+  }
+}

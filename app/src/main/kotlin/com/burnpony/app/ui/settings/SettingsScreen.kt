@@ -100,6 +100,9 @@ private val PONY_APPS = listOf(
     PonyApp("ScrubPony", R.string.pony_scrubpony_subtitle, "https://scrubpony.app"),
     PonyApp("VaultPony", R.string.pony_vaultpony_subtitle, "https://vaultpony.app"),
     PonyApp("PassPony", R.string.pony_passpony_subtitle, "https://passpony.app"),
+    PonyApp("TapPony", R.string.pony_tappony_subtitle, "https://tappony.app"),
+    PonyApp("HashPony", R.string.pony_hashpony_subtitle, "https://hashpony.app"),
+    PonyApp("StegPony", R.string.pony_stegpony_subtitle, "https://stegpony.app"),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

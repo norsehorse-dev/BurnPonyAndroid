@@ -10,6 +10,7 @@ package com.burnpony.app.ui.sent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.burnpony.app.Demo
 import com.burnpony.app.R
 import com.burnpony.app.data.NoteRepository
 import com.burnpony.app.data.SavedCopyUnavailableException
@@ -56,6 +57,9 @@ class SentNotesViewModel(
 
     /** Refresh on entry and on pull-to-refresh; offline keeps last known status silently. */
     fun refresh() {
+        // Debug store screenshots: the seeded rows are not on any server, so
+        // a refresh would mark them gone. Always false in release.
+        if (Demo.active) return
         if (_refreshing.value) return
         _refreshing.value = true
         viewModelScope.launch {
